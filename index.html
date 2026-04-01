@@ -313,21 +313,27 @@
             document.getElementById('dhcpCount').textContent = leases.length;
         }
 
-        function getServiceIcon(proto, port) {
-            if (proto === 'udp' && port == 53) return '🔍';
-            if (proto === 'tcp' && port == 443) return '🔒';
-            if (proto === 'tcp' && port == 80) return '🌐';
-            if (proto === 'tcp' && port == 22) return '📡';
-            if (proto === 'tcp' && port == 3389) return '🖥️';
-            if (proto === 'tcp' && port == 21) return '📁';
-            if (proto === 'tcp' && port == 25) return '📧';
-            if (proto === 'tcp' && port == 110) return '📬';
-            if (proto === 'tcp' && port == 143) return '📧';
-            if (proto === 'tcp' && port == 445) return '📂';
-            if (proto === 'tcp' && port == 3306) return '🗄️';
-            if (proto === 'tcp' && port == 5432) return '🐘';
-            if (proto === 'tcp' && port == 8080) return '🌍';
-            return '📦';
+        function getServiceIcon(proto, port, apps) {
+            const appId = apps && apps.length > 0 ? apps[0].id : null;
+            const appName = apps && apps.length > 0 && apps[0].name ? apps[0].name : null;
+            if (appName) return '📱 ' + appName.split('/')[0];
+            if (appId === 15816) return '📺 YouTube';
+            if (appId === 40169) return '📧 Email';
+            if (appId === 16195) return '🔍 DNS';
+            if (proto === 'tcp' && port == 443) return '🔒 HTTPS';
+            if (proto === 'tcp' && port == 80) return '🌐 HTTP';
+            if (proto === 'tcp' && port == 22) return '📡 SSH';
+            if (proto === 'tcp' && port == 3389) return '🖥️ RDP';
+            if (proto === 'tcp' && port == 21) return '📁 FTP';
+            if (proto === 'tcp' && port == 25) return '📧 SMTP';
+            if (proto === 'tcp' && port == 110) return '📬 POP3';
+            if (proto === 'tcp' && port == 143) return '📧 IMAP';
+            if (proto === 'tcp' && port == 445) return '📂 SMB';
+            if (proto === 'tcp' && port == 3306) return '🗄️ MySQL';
+            if (proto === 'tcp' && port == 5432) return '🐘 PostgreSQL';
+            if (proto === 'tcp' && port == 8080) return '🌍 HTTP-Alt';
+            if (proto === 'udp' && port == 53) return '🔍 DNS';
+            return '📦 ' + proto.toUpperCase();
         }
 
         function getCountryFlag(country) {
@@ -379,7 +385,8 @@
                 const country = session.country || 'Reserved';
                 const rxBytes = formatBytes(session.rcvdbyte || 0);
                 const txBytes = formatBytes(session.sentbyte || 0);
-                const service = getServiceIcon(proto, dstPort);
+                const apps = session.apps || [];
+                const service = getServiceIcon(proto, dstPort, apps);
                 const flag = getCountryFlag(country);
                 const expiry = session.expiry ? session.expiry + 's' : '-';
                 const srcHostname = dhcpMap[srcIp] ? `<span style="color:#4BC0C0;font-size:0.7rem;display:block">${dhcpMap[srcIp]}</span>` : '';
@@ -387,7 +394,7 @@
                     <td><strong>${srcIp}</strong><span style="color:#888;font-size:0.75rem">:${srcPort}</span>${srcHostname}</td>
                     <td style="color:#00d4ff">→</td>
                     <td><strong>${dstIp}</strong><span style="color:#888;font-size:0.75rem">:${dstPort}</span></td>
-                    <td style="text-align:center">${service} ${proto.toUpperCase()}/${dstPort}</td>
+                    <td style="text-align:center">${service}</td>
                     <td><span class="os-badge">${intf}</span></td>
                     <td style="text-align:center">${flag} ${country}</td>
                     <td style="color:#4BC0C0">${txBytes}</td>
