@@ -271,7 +271,7 @@
 
         async function fetchSessions() {
             try {
-                const response = await fetch('/dashboard/fortigate.php?endpoint=firewall/session&start=0&count=200');
+                const response = await fetch('/dashboard/fortigate.php?endpoint=firewall/session&start=0&count=1000');
                 const data = await response.json();
                 return data.results?.details || [];
             } catch (e) {
