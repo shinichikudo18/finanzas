@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$fortiUrl = 'https://1.2.3.4/api/v2/monitor';
+$fortiUrl = 'https://1.2.3.4/api/v2/cmdb';
 $vdom = $_GET['vdom'] ?? 'root';
 $apiToken = 'q7N88NNwff4n0d0hs0769Gd03j9gcq';
 
@@ -18,6 +18,7 @@ $url = $fortiUrl . '/' . $endpoint . '?vdom=' . $vdom;
 
 if (isset($_GET['start'])) $url .= '&start=' . $_GET['start'];
 if (isset($_GET['count'])) $url .= '&count=' . $_GET['count'];
+if (isset($_GET['switch'])) $url .= '&switch=' . $_GET['switch'];
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);

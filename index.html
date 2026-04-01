@@ -85,6 +85,7 @@
             <button class="tab-btn" onclick="switchTab('forti')">📶 Clientes</button>
             <button class="tab-btn" onclick="switchTab('heatmap')">🗺️ Mapa de Calor</button>
             <button class="tab-btn" onclick="switchTab('network')">🌐 Red</button>
+            <button class="tab-btn" onclick="switchTab('switches')">🔄 Switches</button>
         </div>
         <div id="tab-ha" class="tab-content active">
             <div class="dashboard-grid">
@@ -176,6 +177,50 @@
                 </div>
             </div>
         </div>
+        <div id="tab-switches" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-value" id="switchCount">0</div><div class="stat-label">Switches</div></div>
+                <div class="stat-card"><div class="stat-value" id="portUp">0</div><div class="stat-label">Puertos Up</div></div>
+                <div class="stat-card"><div class="stat-value" id="portDown">0</div><div class="stat-label">Puertos Down</div></div>
+                <div class="stat-card"><div class="stat-value" id="poePorts">0</div><div class="stat-label">PoE Activos</div></div>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-title">🔌 Seleccionar Switch</div>
+                <div class="filter-bar">
+                    <select id="switchSelect" onchange="loadSwitchDetails()">
+                        <option value="">Seleccione un Switch...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="dashboard-grid" id="switchDetails" style="display:none;">
+                <div class="card">
+                    <div class="card-title">📡 Información del Switch</div>
+                    <div id="switchInfo"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🏷️ VLANs</div>
+                    <div id="vlanInfo"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">🔀 Puertos del Switch</div>
+                <div class="filter-bar">
+                    <select id="portFilter" onchange="filterPorts()">
+                        <option value="">Todos los Puertos</option>
+                        <option value="up">Activos</option>
+                        <option value="down">Inactivos</option>
+                        <option value="poe">Con PoE</option>
+                    </select>
+                    <input type="text" id="portSearch" placeholder="Buscar puerto..." oninput="filterPorts()">
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="clients-table">
+                        <thead><tr><th>Puerto</th><th>Estado</th><th>Speed</th><th>VLAN</th><th>PoE</th><th>PoE Status</th><th>Description</th><th>MAC</th></tr></thead>
+                        <tbody id="portsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="status-bar"><span id="lastUpdate">Cargando...</span></div>
     </div>
     <script>
@@ -184,6 +229,9 @@
         let currentSort = 'signal';
         let expandedRows = {};
         let allSessions = [];
+        let allSwitches = [];
+        let allPorts = [];
+        let allVlans = [];
         function switchTab(tab) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById('tab-' + tab).classList.add('active'); event.target.classList.add('active'); }
         async function fetchSensorData(entityId) { try { const response = await fetch(`/dashboard/proxy.php?entity=${entityId}`); if (!response.ok) throw new Error('Error'); return await response.json(); } catch (e) { return { state: '0', attributes: {} }; } }
         async function fetchHAEntities() {
@@ -423,6 +471,132 @@
             window.allSessions = sessionData;
             renderSessions(sessionData);
         }
+
+        async function fetchSwitches() {
+            try {
+                const response = await fetch('/dashboard/fortigate.php?endpoint=switch-controller/managed-switch&vdom=root');
+                const data = await response.json();
+                return data.results || [];
+            } catch (e) {
+                console.error('Error Switches:', e);
+                return [];
+            }
+        }
+
+        async function fetchVlans() {
+            try {
+                const response = await fetch('/dashboard/fortigate.php?endpoint=switch-controller/vlan&vdom=root');
+                const data = await response.json();
+                return data.results || [];
+            } catch (e) {
+                console.error('Error VLANs:', e);
+                return [];
+            }
+        }
+
+        function renderSwitchList(switches) {
+            const select = document.getElementById('switchSelect');
+            select.innerHTML = '<option value="">Seleccione un Switch...</option>';
+            switches.forEach((sw, idx) => {
+                const name = sw.name || sw['serial-number'] || 'Switch ' + (idx + 1);
+                select.innerHTML += `<option value="${idx}">${name}</option>`;
+            });
+            document.getElementById('switchCount').textContent = switches.length;
+            window.allSwitches = switches;
+        }
+
+        async function loadSwitchDetails() {
+            const switchIdx = document.getElementById('switchSelect').value;
+            if (switchIdx === '') {
+                document.getElementById('switchDetails').style.display = 'none';
+                return;
+            }
+            document.getElementById('switchDetails').style.display = 'grid';
+            const sw = window.allSwitches[switchIdx];
+            const switchInfo = document.getElementById('switchInfo');
+            switchInfo.innerHTML = `
+                <div class="sensor-card"><span class="sensor-name">Nombre</span><span class="sensor-value">${sw.name || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Serial</span><span class="sensor-value">${sw['serial-number'] || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Modelo</span><span class="sensor-value">${sw.model || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">IP</span><span class="sensor-value">${sw['management-ip'] || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Tipo</span><span class="sensor-value">${sw.type || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Perfil</span><span class="sensor-value">${sw['switch-profile'] || '-'}</span></div>
+            `;
+            const ports = sw.ports || [];
+            window.allPorts = ports;
+            renderPorts(ports);
+            const vlans = await fetchVlans();
+            window.allVlans = vlans;
+            renderVlans(vlans);
+        }
+
+        function renderPorts(ports) {
+            const tbody = document.getElementById('portsBody');
+            tbody.innerHTML = '';
+            if (ports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;padding:20px;">No hay puertos</td></tr>';
+                return;
+            }
+            let upCount = 0, downCount = 0, poeCount = 0;
+            ports.forEach(port => {
+                const status = port.status === 'up' ? '<span class="signal-badge signal-good">UP</span>' : '<span class="signal-badge signal-poor">DOWN</span>';
+                const poeStatus = port['poe-status'] === 'enable' ? '<span style="color:#4BC0C0">✓ Activo</span>' : '<span style="color:#888">-</span>';
+                const poePower = port['poe-max-power'] || '-';
+                const vlan = port.vlan || '-';
+                const speed = port.speed || 'auto';
+                tbody.innerHTML += `<tr>
+                    <td><strong>${port['port-name'] || '-'}</strong></td>
+                    <td>${status}</td>
+                    <td>${speed}</td>
+                    <td>${vlan}</td>
+                    <td>${poePower}</td>
+                    <td>${poeStatus}</td>
+                    <td>${port.description || '-'}</td>
+                    <td style="font-family:monospace;font-size:0.8rem">${port['mac-addr'] || '-'}</td>
+                </tr>`;
+                if (port.status === 'up') upCount++;
+                else downCount++;
+                if (port['poe-status'] === 'enable') poeCount++;
+            });
+            document.getElementById('portUp').textContent = upCount;
+            document.getElementById('portDown').textContent = downCount;
+            document.getElementById('poePorts').textContent = poeCount;
+        }
+
+        function renderVlans(vlans) {
+            const div = document.getElementById('vlanInfo');
+            if (vlans.length === 0) {
+                div.innerHTML = '<p style="color:#888">No hay VLANs</p>';
+                return;
+            }
+            div.innerHTML = vlans.slice(0, 10).map(v => `
+                <div class="sensor-card" style="margin-bottom:8px">
+                    <span class="sensor-name">VLAN ${v.vdom}:${v.vlanid}</span>
+                    <span class="sensor-value">${v.name || '-'}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterPorts() {
+            const filter = document.getElementById('portFilter').value;
+            const search = document.getElementById('portSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#portsBody tr');
+            rows.forEach((row, index) => {
+                const port = window.allPorts[index];
+                if (!port) return;
+                let show = true;
+                if (filter === 'up' && port.status !== 'up') show = false;
+                if (filter === 'down' && port.status !== 'up') show = false;
+                if (filter === 'poe' && port['poe-status'] !== 'enable') show = false;
+                if (search && !(port['port-name'] || '').toLowerCase().includes(search)) show = false;
+                row.style.display = show ? 'table-row' : 'none';
+            });
+        }
+
+        async function loadSwitchesData() {
+            const switches = await fetchSwitches();
+            renderSwitchList(switches);
+        }
         function getSignalClass(signal) { if (signal >= -50) return 'signal-good'; if (signal >= -70) return 'signal-fair'; return 'signal-poor'; }
         function getSignalText(signal) { if (signal >= -50) return 'Bueno'; if (signal >= -70) return 'Regular'; return 'Malo'; }
         function populateFilters(clients) {
@@ -493,7 +667,7 @@
             document.getElementById('heatmapGood').textContent = totalGood;
             document.getElementById('heatmapPoor').textContent = totalPoor;
         }
-        async function refreshData() { document.getElementById('lastUpdate').textContent = 'Actualizando...'; await fetchHAEntities(); allClients = await fetchClients(); populateFilters(allClients); updateStats(allClients); renderClients(allClients); renderHeatmap(allClients); await loadNetworkData(); document.getElementById('lastUpdate').textContent = 'Última actualización: ' + new Date().toLocaleTimeString(); }
+        async function refreshData() { document.getElementById('lastUpdate').textContent = 'Actualizando...'; await fetchHAEntities(); allClients = await fetchClients(); populateFilters(allClients); updateStats(allClients); renderClients(allClients); renderHeatmap(allClients); await loadNetworkData(); await loadSwitchesData(); document.getElementById('lastUpdate').textContent = 'Última actualización: ' + new Date().toLocaleTimeString(); }
         document.getElementById('ssidFilter').addEventListener('change', filterClients);
         document.getElementById('apFilter').addEventListener('change', filterClients);
         document.getElementById('searchFilter').addEventListener('input', filterClients);
