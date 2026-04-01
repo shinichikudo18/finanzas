@@ -317,9 +317,45 @@
             const appId = apps && apps.length > 0 ? apps[0].id : null;
             const appName = apps && apps.length > 0 && apps[0].name ? apps[0].name : null;
             if (appName) return '📱 ' + appName.split('/')[0];
-            if (appId === 15816) return '📺 YouTube';
-            if (appId === 40169) return '📧 Email';
-            if (appId === 16195) return '🔍 DNS';
+            const appMap = {
+                15816: { icon: '📺', name: 'YouTube' },
+                15832: { icon: '📺', name: 'Netflix' },
+                16195: { icon: '🔍', name: 'DNS' },
+                23813: { icon: '🎵', name: 'Spotify' },
+                28057: { icon: '💬', name: 'WhatsApp' },
+                29210: { icon: '🔒', name: 'TLS' },
+                34527: { icon: '🎮', name: 'Gaming' },
+                37371: { icon: '📧', name: 'Gmail' },
+                38517: { icon: '🔐', name: 'OAuth' },
+                39187: { icon: '🌐', name: 'HTTP' },
+                39188: { icon: '🌐', name: 'HTTP' },
+                39381: { icon: '📦', name: 'SSL' },
+                39999: { icon: '📄', name: 'HTTP/2' },
+                40169: { icon: '📧', name: 'Email' },
+                40698: { icon: '🔵', name: 'Facebook' },
+                40933: { icon: '🎥', name: 'TikTok' },
+                40934: { icon: '📸', name: 'Instagram' },
+                40935: { icon: '🐦', name: 'Twitter' },
+                41698: { icon: '💼', name: 'Office365' },
+                42669: { icon: '🔗', name: 'Teams' },
+                43448: { icon: '📹', name: 'Zoom' },
+                44419: { icon: '🛒', name: 'Amazon' },
+                49970: { icon: '📚', name: 'Google' },
+                49971: { icon: '🔍', name: 'Bing' },
+                54387: { icon: '🖥️', name: 'Windows' },
+                54399: { icon: '☁️', name: 'Cloud' },
+                54402: { icon: '🎬', name: 'Disney' },
+                54409: { icon: '📺', name: 'Hulu' },
+                35523: { icon: '🔒', name: 'VPN' },
+                17399: { icon: '🔴', name: 'RTMP' },
+                22922: { icon: '📡', name: 'RTSP' },
+                23260: { icon: '🔒', name: 'IPSec' },
+                24318: { icon: '📊', name: 'FTP' },
+                17735: { icon: '🗄️', name: 'SMB' },
+                15722: { icon: '📁', name: 'SFTP' },
+                38468: { icon: '📧', name: 'POP3' }
+            };
+            if (appMap[appId]) return appMap[appId].icon + ' ' + appMap[appId].name;
             if (proto === 'tcp' && port == 443) return '🔒 HTTPS';
             if (proto === 'tcp' && port == 80) return '🌐 HTTP';
             if (proto === 'tcp' && port == 22) return '📡 SSH';
