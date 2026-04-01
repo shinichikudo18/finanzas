@@ -141,12 +141,24 @@
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-value" id="dhcpCount">0</div><div class="stat-label">IPs DHCP</div></div>
                 <div class="stat-card"><div class="stat-value" id="sessionCount">0</div><div class="stat-label">Sesiones Activas</div></div>
+                <div class="stat-card"><div class="stat-value" id="tcpCount">0</div><div class="stat-label">TCP</div></div>
+                <div class="stat-card"><div class="stat-value" id="udpCount">0</div><div class="stat-label">UDP</div></div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-title">📊 Protocolos</div>
+                    <div class="chart-container" style="height:200px"><canvas id="protoChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🏢 Por Interfaz</div>
+                    <div class="chart-container" style="height:200px"><canvas id="intfChart"></canvas></div>
+                </div>
             </div>
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-title">📋 Servidores DHCP - IPs Asignadas</div>
                 <div style="overflow-x:auto;">
                     <table class="clients-table">
-                        <thead><tr><th>IP</th><th>MAC</th><th>Hostname</th><th>VLAN</th><th>Expires</th></tr></thead>
+                        <thead><tr><th>IP</th><th>MAC</th><th>Hostname</th><th>Interfaz</th><th>Expira</th></tr></thead>
                         <tbody id="dhcpBody"></tbody>
                     </table>
                 </div>
@@ -158,7 +170,7 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="clients-table">
-                        <thead><tr><th>IP Origen</th><th>Puerto Orig</th><th>IP Destino</th><th>Puerto Dest</th><th>Protocolo</th><th>Rx Bytes</th><th>Tx Bytes</th><th>Estado</th></tr></thead>
+                        <thead><tr><th>Origen</th><th>→</th><th>Destino</th><th>Servicio</th><th>Interfaz</th><th>País</th><th>Tx</th><th>Rx</th><th>Expira</th></tr></thead>
                         <tbody id="sessionBody"></tbody>
                     </table>
                 </div>
@@ -244,11 +256,54 @@
             document.getElementById('dhcpCount').textContent = leases.length;
         }
 
+        function getServiceIcon(proto, port) {
+            if (proto === 'udp' && port == 53) return '🔍';
+            if (proto === 'tcp' && port == 443) return '🔒';
+            if (proto === 'tcp' && port == 80) return '🌐';
+            if (proto === 'tcp' && port == 22) return '📡';
+            if (proto === 'tcp' && port == 3389) return '🖥️';
+            if (proto === 'tcp' && port == 21) return '📁';
+            if (proto === 'tcp' && port == 25) return '📧';
+            if (proto === 'tcp' && port == 110) return '📬';
+            if (proto === 'tcp' && port == 143) return '📧';
+            if (proto === 'tcp' && port == 445) return '📂';
+            if (proto === 'tcp' && port == 3306) return '🗄️';
+            if (proto === 'tcp' && port == 5432) return '🐘';
+            if (proto === 'tcp' && port == 8080) return '🌍';
+            return '📦';
+        }
+
+        function getCountryFlag(country) {
+            const flags = {
+                'United States': '🇺🇸',
+                'Chile': '🇨🇱',
+                'China': '🇨🇳',
+                'Germany': '🇩🇪',
+                'France': '🇫🇷',
+                'Spain': '🇪🇸',
+                'Brazil': '🇧🇷',
+                'Argentina': '🇦🇷',
+                'Mexico': '🇲🇽',
+                'Colombia': '🇨🇴',
+                'Peru': '🇵🇪',
+                'United Kingdom': '🇬🇧',
+                'Japan': '🇯🇵',
+                'Korea': '🇰🇷',
+                'India': '🇮🇳',
+                'Canada': '🇨🇦',
+                'Australia': '🇦🇺',
+                'Russia': '🇷🇺',
+                'Netherlands': '🇳🇱',
+                'Italy': '🇮🇹'
+            };
+            return flags[country] || '🌍';
+        }
+
         function renderSessions(sessions) {
             const tbody = document.getElementById('sessionBody');
             tbody.innerHTML = '';
             if (sessions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;padding:20px;">No hay sesiones</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:20px;">No hay sesiones</td></tr>';
                 return;
             }
             sessions.forEach(session => {
@@ -257,20 +312,99 @@
                 const srcPort = session.sport || '-';
                 const dstPort = session.dport || '-';
                 const proto = session.proto || '-';
-                const rxBytes = formatBytes(session.rcvdbyte || session.sentbyte || 0);
-                const txBytes = formatBytes(session.sentbyte || session.rcvdbyte || 0);
-                const state = session.expiry ? session.expiry + 's' : '-';
-                tbody.innerHTML += `<tr><td>${srcIp}</td><td>${srcPort}</td><td>${dstIp}</td><td>${dstPort}</td><td>${proto}</td><td>${rxBytes}</td><td>${txBytes}</td><td>${state}</td></tr>`;
+                const intf = session.srcintf || '-';
+                const country = session.country || 'Reserved';
+                const rxBytes = formatBytes(session.rcvdbyte || 0);
+                const txBytes = formatBytes(session.sentbyte || 0);
+                const service = getServiceIcon(proto, dstPort);
+                const flag = getCountryFlag(country);
+                const expiry = session.expiry ? session.expiry + 's' : '-';
+                tbody.innerHTML += `<tr>
+                    <td><strong>${srcIp}</strong><span style="color:#888;font-size:0.75rem">:${srcPort}</span></td>
+                    <td style="color:#00d4ff">→</td>
+                    <td><strong>${dstIp}</strong><span style="color:#888;font-size:0.75rem">:${dstPort}</span></td>
+                    <td style="text-align:center">${service} ${proto.toUpperCase()}/${dstPort}</td>
+                    <td><span class="os-badge">${intf}</span></td>
+                    <td style="text-align:center">${flag} ${country}</td>
+                    <td style="color:#4BC0C0">${txBytes}</td>
+                    <td style="color:#36A2EB">${rxBytes}</td>
+                    <td>${expiry}</td>
+                </tr>`;
             });
             document.getElementById('sessionCount').textContent = sessions.length;
+            
+            const tcpCount = sessions.filter(s => s.proto === 'tcp').length;
+            const udpCount = sessions.filter(s => s.proto === 'udp').length;
+            document.getElementById('tcpCount').textContent = tcpCount;
+            document.getElementById('udpCount').textContent = udpCount;
+            
+            renderProtoChart(tcpCount, udpCount);
+            renderIntfChart(sessions);
+        }
+
+        function renderProtoChart(tcp, udp) {
+            const ctx = document.getElementById('protoChart').getContext('2d');
+            if (window.protoChart) window.protoChart.destroy();
+            window.protoChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TCP', 'UDP'],
+                    datasets: [{
+                        data: [tcp, udp],
+                        backgroundColor: ['#36A2EB', '#FF6384'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#fff', padding: 15 } }
+                    }
+                }
+            });
+        }
+
+        function renderIntfChart(sessions) {
+            const intfCounts = {};
+            sessions.forEach(s => {
+                const intf = s.srcintf || 'Unknown';
+                intfCounts[intf] = (intfCounts[intf] || 0) + 1;
+            });
+            const ctx = document.getElementById('intfChart').getContext('2d');
+            if (window.intfChart) window.intfChart.destroy();
+            window.intfChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(intfCounts),
+                    datasets: [{
+                        label: 'Sesiones',
+                        data: Object.values(intfCounts),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: '#fff' }, grid: { display: false } }
+                    }
+                }
+            });
         }
 
         function filterSessions() {
             const search = document.getElementById('sessionSearch').value.toLowerCase();
             const rows = document.querySelectorAll('#sessionBody tr');
             rows.forEach((row, index) => {
-                const srcIp = (window.allSessions[index]?.srcaddr || window.allSessions[index]?.srcip || '').toLowerCase();
-                const dstIp = (window.allSessions[index]?.dstaddr || window.allSessions[index]?.dstip || '').toLowerCase();
+                const srcIp = (window.allSessions[index]?.saddr || '').toLowerCase();
+                const dstIp = (window.allSessions[index]?.daddr || '').toLowerCase();
                 row.style.display = (search === '' || srcIp.includes(search) || dstIp.includes(search)) ? 'table-row' : 'none';
             });
         }
