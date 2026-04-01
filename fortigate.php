@@ -16,17 +16,11 @@ $endpoint = $_GET['endpoint'] ?? 'wifi/client';
 $monitorEndpoints = ['wifi/client', 'system/dhcp', 'firewall/session'];
 $isMonitor = in_array($endpoint, $monitorEndpoints);
 
-if (strpos($endpoint, 'switch-controller/managed-switch') === 0 && isset($_GET['action']) && $_GET['action'] === 'port-stats') {
-    $baseUrl = 'https://1.2.3.4/api/v2/monitor/switch-controller/managed-switch';
-    $url = $baseUrl . '?action=port-stats&mkey=' . $_GET['switch'] . '&vdom=' . $vdom;
-} else {
-    $baseUrl = $isMonitor ? 'https://1.2.3.4/api/v2/monitor' : 'https://1.2.3.4/api/v2/cmdb';
-    $url = $baseUrl . '/' . $endpoint . '?vdom=' . $vdom;
-}
+$baseUrl = $isMonitor ? 'https://1.2.3.4/api/v2/monitor' : 'https://1.2.3.4/api/v2/cmdb';
+$url = $baseUrl . '/' . $endpoint . '?vdom=' . $vdom;
 
 if (isset($_GET['start'])) $url .= '&start=' . $_GET['start'];
 if (isset($_GET['count'])) $url .= '&count=' . $_GET['count'];
-if (isset($_GET['switch'])) $url .= '&switch=' . $_GET['switch'];
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);

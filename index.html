@@ -223,7 +223,7 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="clients-table">
-                        <thead><tr><th>Puerto</th><th>Estado</th><th>Speed</th><th>VLAN</th><th>PoE</th><th>PoE Status</th><th>Description</th><th>MAC</th><th>Tráfico</th></tr></thead>
+                        <thead><tr><th>Puerto</th><th>Estado</th><th>Speed</th><th>VLAN</th><th>PoE Max</th><th>PoE Status</th><th>Description</th><th>MAC</th></tr></thead>
                         <tbody id="portsBody"></tbody>
                     </table>
                 </div>
@@ -530,7 +530,6 @@
             }
             document.getElementById('switchDetails').style.display = 'grid';
             const sw = window.allSwitches[switchIdx];
-            const switchId = sw['switch-id'] || sw['serial-number'] || '';
             const switchInfo = document.getElementById('switchInfo');
             switchInfo.innerHTML = `
                 <div class="sensor-card"><span class="sensor-name">Switch ID</span><span class="sensor-value">${sw['switch-id'] || '-'}</span></div>
@@ -540,72 +539,47 @@
                 <div class="sensor-card"><span class="sensor-name">Perfil Switch</span><span class="sensor-value">${sw['switch-profile'] || '-'}</span></div>
                 <div class="sensor-card"><span class="sensor-name">Acceso</span><span class="sensor-value">${sw['access-profile'] || '-'}</span></div>
             `;
-            const portStats = await fetchPortStats(switchId);
             const ports = sw.ports || [];
             window.allPorts = ports;
-            window.portStats = portStats;
-            renderPorts(ports, portStats);
+            renderPorts(ports);
             const vlans = await fetchVlans();
             window.allVlans = vlans;
             renderVlans(vlans);
         }
 
-        async function fetchPortStats(switchId) {
-            try {
-                const response = await fetch('/dashboard/fortigate.php?endpoint=switch-controller/managed-switch&action=port-stats&switch=' + switchId + '&vdom=root');
-                const data = await response.json();
-                return data.ports || {};
-            } catch (e) {
-                console.error('Error Port Stats:', e);
-                return {};
-            }
-        }
-
-        function renderPorts(ports, portStats) {
+        function renderPorts(ports) {
             const tbody = document.getElementById('portsBody');
             tbody.innerHTML = '';
             if (ports.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:20px;">No hay puertos</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888;padding:20px;">No hay puertos</td></tr>';
                 return;
             }
             let upCount = 0, downCount = 0, poeCount = 0;
             ports.forEach(port => {
                 const portName = port['port-name'] || '-';
-                const stats = portStats[portName] || {};
-                const rxBytes = stats['rx-bytes'] || 0;
-                const txBytes = stats['tx-bytes'] || 0;
-                const hasTraffic = rxBytes > 0 || txBytes > 0;
-                const poeConsume = stats['poe-power-consumption'] || 0;
-                
-                const adminStatus = port.status === 'up';
-                const operStatus = hasTraffic;
-                let statusHtml;
-                if (adminStatus && operStatus) {
-                    statusHtml = '<span class="signal-badge signal-good">● Online</span>';
-                } else if (adminStatus && !operStatus) {
-                    statusHtml = '<span class="signal-badge" style="background:#FFCE56;color:#333">○ Admin Up</span>';
-                } else {
-                    statusHtml = '<span class="signal-badge signal-poor">✕ Down</span>';
-                }
-                
-                const poeStatus = port['poe-status'] === 'enable' ? '<span style="color:#4BC0C0">✓ Activo</span>' : '<span style="color:#888">-</span>';
-                const poePower = poeConsume > 0 ? '<span style="color:#FF6384">' + poeConsume.toFixed(1) + 'W</span>' : (port['poe-max-power'] || '-');
+                const poeCapable = port['poe-capable'] === 1;
+                const poeEnabled = port['poe-status'] === 'enable';
+                const poeMax = port['poe-max-power'] || '-';
+                const poeMode = port['poe-port-mode'] || '-';
                 const vlan = port.vlan || '-';
                 const speed = port.speed || 'auto';
+                const media = port['media-type'] || '-';
+                const status = port.status === 'up' ? '<span class="signal-badge signal-good">UP</span>' : '<span class="signal-badge signal-poor">DOWN</span>';
+                const poeStatus = poeEnabled ? '<span style="color:#4BC0C0">✓ Activo</span>' : (poeCapable ? '<span style="color:#FFCE56">○ Disponible</span>' : '<span style="color:#888">-</span>');
+                const poeDisplay = poeCapable ? poeMax : '-';
                 tbody.innerHTML += `<tr>
                     <td><strong>${portName}</strong></td>
-                    <td>${statusHtml}</td>
+                    <td>${status}</td>
                     <td>${speed}</td>
                     <td>${vlan}</td>
-                    <td>${poePower}</td>
+                    <td>${poeDisplay}</td>
                     <td>${poeStatus}</td>
                     <td>${port.description || '-'}</td>
                     <td style="font-family:monospace;font-size:0.8rem">${port['mac-addr'] || '-'}</td>
-                    <td style="font-size:0.75rem;color:#888">${hasTraffic ? formatBytes(rxBytes+txBytes) : 'Sin tráfico'}</td>
                 </tr>`;
-                if (adminStatus) upCount++;
+                if (port.status === 'up') upCount++;
                 else downCount++;
-                if (port['poe-status'] === 'enable') poeCount++;
+                if (poeEnabled) poeCount++;
             });
             document.getElementById('portUp').textContent = upCount;
             document.getElementById('portDown').textContent = downCount;
