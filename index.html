@@ -147,11 +147,11 @@
             <div class="dashboard-grid">
                 <div class="card">
                     <div class="card-title">📊 Protocolos</div>
-                    <div class="chart-container" style="height:200px"><canvas id="protoChart"></canvas></div>
+                    <div class="chart-container" style="height:220px"><canvas id="protoChart"></canvas></div>
                 </div>
                 <div class="card">
                     <div class="card-title">🏢 Por Interfaz</div>
-                    <div class="chart-container" style="height:200px"><canvas id="intfChart"></canvas></div>
+                    <div class="chart-container" style="height:220px"><canvas id="intfChart"></canvas></div>
                 </div>
             </div>
             <div class="card" style="margin-bottom:20px;">
@@ -343,6 +343,8 @@
         }
 
         function renderProtoChart(tcp, udp) {
+            console.log('TCP:', tcp, 'UDP:', udp);
+            if (tcp === 0 && udp === 0) return;
             const ctx = document.getElementById('protoChart').getContext('2d');
             if (window.protoChart) window.protoChart.destroy();
             window.protoChart = new Chart(ctx, {
@@ -367,11 +369,14 @@
         }
 
         function renderIntfChart(sessions) {
+            console.log('Sessions:', sessions.length);
             const intfCounts = {};
             sessions.forEach(s => {
                 const intf = s.srcintf || 'Unknown';
                 intfCounts[intf] = (intfCounts[intf] || 0) + 1;
             });
+            console.log('Interfaces:', intfCounts);
+            if (Object.keys(intfCounts).length === 0) return;
             const ctx = document.getElementById('intfChart').getContext('2d');
             if (window.intfChart) window.intfChart.destroy();
             window.intfChart = new Chart(ctx, {
