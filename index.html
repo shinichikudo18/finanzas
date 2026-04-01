@@ -498,7 +498,7 @@
             const select = document.getElementById('switchSelect');
             select.innerHTML = '<option value="">Seleccione un Switch...</option>';
             switches.forEach((sw, idx) => {
-                const name = sw.name || sw['serial-number'] || 'Switch ' + (idx + 1);
+                const name = sw['switch-id'] || sw['serial-number'] || 'Switch ' + (idx + 1);
                 select.innerHTML += `<option value="${idx}">${name}</option>`;
             });
             document.getElementById('switchCount').textContent = switches.length;
@@ -515,12 +515,12 @@
             const sw = window.allSwitches[switchIdx];
             const switchInfo = document.getElementById('switchInfo');
             switchInfo.innerHTML = `
-                <div class="sensor-card"><span class="sensor-name">Nombre</span><span class="sensor-value">${sw.name || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Switch ID</span><span class="sensor-value">${sw['switch-id'] || '-'}</span></div>
                 <div class="sensor-card"><span class="sensor-name">Serial</span><span class="sensor-value">${sw['serial-number'] || '-'}</span></div>
                 <div class="sensor-card"><span class="sensor-name">Modelo</span><span class="sensor-value">${sw.model || '-'}</span></div>
-                <div class="sensor-card"><span class="sensor-name">IP</span><span class="sensor-value">${sw['management-ip'] || '-'}</span></div>
                 <div class="sensor-card"><span class="sensor-name">Tipo</span><span class="sensor-value">${sw.type || '-'}</span></div>
-                <div class="sensor-card"><span class="sensor-name">Perfil</span><span class="sensor-value">${sw['switch-profile'] || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Perfil Switch</span><span class="sensor-value">${sw['switch-profile'] || '-'}</span></div>
+                <div class="sensor-card"><span class="sensor-name">Acceso</span><span class="sensor-value">${sw['access-profile'] || '-'}</span></div>
             `;
             const ports = sw.ports || [];
             window.allPorts = ports;
