@@ -175,6 +175,14 @@
                     <div class="card-title">🔥 Sesiones de Firewall</div>
                     <div class="filter-bar">
                         <input type="text" id="sessionSearch" placeholder="Buscar IP origen o destino...">
+                        <select id="pageSize" onchange="changePageSize()">
+                            <option value="50">50 por página</option>
+                            <option value="100">100 por página</option>
+                            <option value="200">200 por página</option>
+                        </select>
+                        <button onclick="prevPage()" style="padding:5px 10px;margin:0 5px;">◀</button>
+                        <span id="pageInfo">1</span>
+                        <button onclick="nextPage()" style="padding:5px 10px;margin:0 5px;">▶</button>
                     </div>
                     <div style="overflow-x:auto;">
                         <table class="clients-table">
@@ -237,6 +245,9 @@
         let currentSort = 'signal';
         let expandedRows = {};
         let allSessions = [];
+        let currentPage = 1;
+        let pageSize = 50;
+        let filteredSessions = [];
         let allSwitches = [];
         let allPorts = [];
         let allVlans = [];
@@ -399,10 +410,37 @@
         }
 
         function renderSessions(sessions) {
+            window.allSessions = sessions;
+            filteredSessions = sessions;
+            currentPage = 1;
+            renderSessionPage();
+            const tcpCount = sessions.filter(s => s.proto === 'tcp').length;
+            const udpCount = sessions.filter(s => s.proto === 'udp').length;
+            document.getElementById('tcpCount').textContent = tcpCount;
+            document.getElementById('udpCount').textContent = udpCount;
+            renderProtoChart(tcpCount, udpCount);
+            renderIntfChart(sessions);
+        }
+
+        function renderSessionPage() {
             const tbody = document.getElementById('sessionBody');
             tbody.innerHTML = '';
-            if (sessions.length === 0) {
+            const search = document.getElementById('sessionSearch').value.toLowerCase();
+            let sessions = filteredSessions;
+            if (search) {
+                sessions = sessions.filter(s => 
+                    (s.saddr || '').includes(search) || 
+                    (s.daddr || '').includes(search)
+                );
+            }
+            const totalPages = Math.ceil(sessions.length / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageSessions = sessions.slice(start, end);
+            if (pageSessions.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:20px;">No hay sesiones</td></tr>';
+                document.getElementById('pageInfo').textContent = '0 / 0';
                 return;
             }
             const dhcpMap = {};
@@ -411,7 +449,7 @@
                     if (lease.ip) dhcpMap[lease.ip] = lease.hostname || lease.mac;
                 });
             }
-            sessions.forEach(session => {
+            pageSessions.forEach(session => {
                 const srcIp = session.saddr || '-';
                 const dstIp = session.daddr || '-';
                 const srcPort = session.sport || '-';
@@ -439,14 +477,29 @@
                 </tr>`;
             });
             document.getElementById('sessionCount').textContent = sessions.length;
-            
-            const tcpCount = sessions.filter(s => s.proto === 'tcp').length;
-            const udpCount = sessions.filter(s => s.proto === 'udp').length;
-            document.getElementById('tcpCount').textContent = tcpCount;
-            document.getElementById('udpCount').textContent = udpCount;
-            
-            renderProtoChart(tcpCount, udpCount);
-            renderIntfChart(sessions);
+            document.getElementById('pageInfo').textContent = currentPage + ' / ' + totalPages;
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            renderSessionPage();
+        }
+
+        function prevPage() {
+            const search = document.getElementById('sessionSearch').value.toLowerCase();
+            let sessions = filteredSessions;
+            if (search) sessions = sessions.filter(s => (s.saddr || '').includes(search) || (s.daddr || '').includes(search));
+            const totalPages = Math.ceil(sessions.length / pageSize);
+            if (currentPage > 1) { currentPage--; renderSessionPage(); }
+        }
+
+        function nextPage() {
+            const search = document.getElementById('sessionSearch').value.toLowerCase();
+            let sessions = filteredSessions;
+            if (search) sessions = sessions.filter(s => (s.saddr || '').includes(search) || (s.daddr || '').includes(search));
+            const totalPages = Math.ceil(sessions.length / pageSize);
+            if (currentPage < totalPages) { currentPage++; renderSessionPage(); }
         }
 
         function renderProtoChart(tcp, udp) {
@@ -510,16 +563,6 @@
                         x: { ticks: { color: '#fff' }, grid: { display: false } }
                     }
                 }
-            });
-        }
-
-        function filterSessions() {
-            const search = document.getElementById('sessionSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('#sessionBody tr');
-            rows.forEach((row, index) => {
-                const srcIp = (window.allSessions[index]?.saddr || '').toLowerCase();
-                const dstIp = (window.allSessions[index]?.daddr || '').toLowerCase();
-                row.style.display = (search === '' || srcIp.includes(search) || dstIp.includes(search)) ? 'table-row' : 'none';
             });
         }
 
@@ -737,7 +780,7 @@
         document.getElementById('ssidFilter').addEventListener('change', filterClients);
         document.getElementById('apFilter').addEventListener('change', filterClients);
         document.getElementById('searchFilter').addEventListener('input', filterClients);
-        document.getElementById('sessionSearch').addEventListener('input', filterSessions);
+        document.getElementById('sessionSearch').addEventListener('input', () => { currentPage = 1; renderSessionPage(); });
         document.addEventListener('DOMContentLoaded', () => { refreshData(); setInterval(refreshData, 60000); });
     </script>
 </body>
