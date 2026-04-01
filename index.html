@@ -345,8 +345,9 @@
         function renderProtoChart(tcp, udp) {
             console.log('TCP:', tcp, 'UDP:', udp);
             if (tcp === 0 && udp === 0) return;
+            if (typeof Chart === 'undefined') { console.log('Chart not loaded'); return; }
             const ctx = document.getElementById('protoChart').getContext('2d');
-            if (window.protoChart) window.protoChart.destroy();
+            if (window.protoChart && typeof window.protoChart.destroy === 'function') window.protoChart.destroy();
             window.protoChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -377,8 +378,9 @@
             });
             console.log('Interfaces:', intfCounts);
             if (Object.keys(intfCounts).length === 0) return;
+            if (typeof Chart === 'undefined') { console.log('Chart not loaded'); return; }
             const ctx = document.getElementById('intfChart').getContext('2d');
-            if (window.intfChart) window.intfChart.destroy();
+            if (window.intfChart && typeof window.intfChart.destroy === 'function') window.intfChart.destroy();
             window.intfChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
