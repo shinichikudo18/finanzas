@@ -204,7 +204,7 @@
             try {
                 const response = await fetch('/dashboard/fortigate.php?endpoint=firewall/session&start=0&count=100');
                 const data = await response.json();
-                return data.results || [];
+                return data.results?.details || [];
             } catch (e) {
                 console.error('Error Sessions:', e);
                 return [];
@@ -240,14 +240,14 @@
                 return;
             }
             sessions.forEach(session => {
-                const srcIp = session.srcaddr || session.srcip || '-';
-                const dstIp = session.dstaddr || session.dstip || '-';
-                const srcPort = session.srcport || '-';
-                const dstPort = session.dstport || '-';
+                const srcIp = session.saddr || '-';
+                const dstIp = session.daddr || '-';
+                const srcPort = session.sport || '-';
+                const dstPort = session.dport || '-';
                 const proto = session.proto || '-';
-                const rxBytes = formatBytes(session.rx_bytes || 0);
-                const txBytes = formatBytes(session.tx_bytes || 0);
-                const state = session.state || '-';
+                const rxBytes = formatBytes(session.rcvdbyte || session.sentbyte || 0);
+                const txBytes = formatBytes(session.sentbyte || session.rcvdbyte || 0);
+                const state = session.expiry ? session.expiry + 's' : '-';
                 tbody.innerHTML += `<tr><td>${srcIp}</td><td>${srcPort}</td><td>${dstIp}</td><td>${dstPort}</td><td>${proto}</td><td>${rxBytes}</td><td>${txBytes}</td><td>${state}</td></tr>`;
             });
             document.getElementById('sessionCount').textContent = sessions.length;
