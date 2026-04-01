@@ -363,6 +363,12 @@
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:20px;">No hay sesiones</td></tr>';
                 return;
             }
+            const dhcpMap = {};
+            if (window.dhcpData) {
+                window.dhcpData.forEach(lease => {
+                    if (lease.ip) dhcpMap[lease.ip] = lease.hostname || lease.mac;
+                });
+            }
             sessions.forEach(session => {
                 const srcIp = session.saddr || '-';
                 const dstIp = session.daddr || '-';
@@ -376,8 +382,9 @@
                 const service = getServiceIcon(proto, dstPort);
                 const flag = getCountryFlag(country);
                 const expiry = session.expiry ? session.expiry + 's' : '-';
+                const srcHostname = dhcpMap[srcIp] ? `<span style="color:#4BC0C0;font-size:0.7rem;display:block">${dhcpMap[srcIp]}</span>` : '';
                 tbody.innerHTML += `<tr>
-                    <td><strong>${srcIp}</strong><span style="color:#888;font-size:0.75rem">:${srcPort}</span></td>
+                    <td><strong>${srcIp}</strong><span style="color:#888;font-size:0.75rem">:${srcPort}</span>${srcHostname}</td>
                     <td style="color:#00d4ff">→</td>
                     <td><strong>${dstIp}</strong><span style="color:#888;font-size:0.75rem">:${dstPort}</span></td>
                     <td style="text-align:center">${service} ${proto.toUpperCase()}/${dstPort}</td>
@@ -475,6 +482,7 @@
 
         async function loadNetworkData() {
             const dhcpData = await fetchDHCP();
+            window.dhcpData = dhcpData;
             renderDHCP(dhcpData);
             const sessionData = await fetchSessions();
             window.allSessions = sessionData;
