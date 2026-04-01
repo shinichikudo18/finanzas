@@ -9,12 +9,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$fortiUrl = 'https://1.2.3.4/api/v2/cmdb';
-$vdom = $_GET['vdom'] ?? 'root';
 $apiToken = 'q7N88NNwff4n0d0hs0769Gd03j9gcq';
-
+$vdom = $_GET['vdom'] ?? 'root';
 $endpoint = $_GET['endpoint'] ?? 'wifi/client';
-$url = $fortiUrl . '/' . $endpoint . '?vdom=' . $vdom;
+
+$monitorEndpoints = ['wifi/client', 'system/dhcp', 'firewall/session'];
+$isMonitor = in_array($endpoint, $monitorEndpoints);
+
+$baseUrl = $isMonitor ? 'https://1.2.3.4/api/v2/monitor' : 'https://1.2.3.4/api/v2/cmdb';
+$url = $baseUrl . '/' . $endpoint . '?vdom=' . $vdom;
 
 if (isset($_GET['start'])) $url .= '&start=' . $_GET['start'];
 if (isset($_GET['count'])) $url .= '&count=' . $_GET['count'];
