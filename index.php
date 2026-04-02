@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katherine Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --blue: #00a8e8;
@@ -95,9 +96,12 @@
         .filtro-btn:hover { border-color: var(--blue); color: var(--blue); }
         .filtro-btn.active { background: linear-gradient(135deg, var(--orange), var(--yellow)); border-color: var(--orange); color: #000; }
         
-        .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .resumen-card { background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 15px; padding: 25px; }
         .resumen-titulo { font-size: 1.2rem; color: var(--cyan); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+        .chart-container { position: relative; height: 250px; margin-bottom: 20px; }
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .chart-row .resumen-card { padding: 15px; }
         .categoria-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 10px; transition: all 0.3s ease; }
         .categoria-item:hover { background: rgba(0,168,232,0.1); transform: translateX(5px); }
         .categoria-icon { font-size: 1.3rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid var(--bg-card-border); }
@@ -193,8 +197,26 @@
         </div>
         <div id="tab-resumen" class="tab-content">
             <div class="resumen-grid">
-                <div class="resumen-card"><div class="resumen-titulo">Gastos por Categoria</div><div id="resumenCategoria"></div></div>
-                <div class="resumen-card"><div class="resumen-titulo">Gastos por Cuenta</div><div id="resumenCuenta"></div></div>
+                <div class="resumen-card">
+                    <div class="resumen-titulo">Gastos por Categoria</div>
+                    <div class="chart-container"><canvas id="chartCategoria"></canvas></div>
+                    <div id="resumenCategoria"></div>
+                </div>
+                <div class="resumen-card">
+                    <div class="resumen-titulo">Gastos por Cuenta</div>
+                    <div class="chart-container"><canvas id="chartCuenta"></canvas></div>
+                    <div id="resumenCuenta"></div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <div class="resumen-card">
+                    <div class="resumen-titulo">Ingresos vs Gastos</div>
+                    <div class="chart-container"><canvas id="chartIngresosGastos"></canvas></div>
+                </div>
+                <div class="resumen-card">
+                    <div class="resumen-titulo">Evolucion del Mes</div>
+                    <div class="chart-container"><canvas id="chartEvolucion"></canvas></div>
+                </div>
             </div>
         </div>
     </div>
@@ -343,6 +365,103 @@
         function renderResumen(data) {
             document.getElementById('resumenCategoria').innerHTML = (data.por_categoria || []).map(c => `<div class="categoria-item"><div class="categoria-icon" style="background:${c.color}20">${c.icono}</div><div class="categoria-nombre">${c.nombre}</div><div class="categoria-monto">${formatCLP(c.total)}</div></div>`).join('') || '<p style="color:#aaa">Sin datos</p>';
             document.getElementById('resumenCuenta').innerHTML = (data.por_cuenta || []).map(c => `<div class="categoria-item"><div class="categoria-icon" style="background:${c.color}20">🏦</div><div class="categoria-nombre">${c.nombre}</div><div class="categoria-monto">${formatCLP(c.total)}</div></div>`).join('') || '<p style="color:#aaa">Sin datos</p>';
+            
+            renderCharts(data);
+        }
+        
+        let charts = {};
+        function renderCharts(data) {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#e0f7fa', font: { family: 'Exo 2' } } }
+                }
+            };
+            
+            if (charts.categoria) charts.categoria.destroy();
+            if (charts.cuenta) charts.cuenta.destroy();
+            if (charts.ingresosGastos) charts.ingresosGastos.destroy();
+            if (charts.evolucion) charts.evolucion.destroy();
+            
+            const ctxCat = document.getElementById('chartCategoria').getContext('2d');
+            charts.categoria = new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: (data.por_categoria || []).map(c => c.nombre),
+                    datasets: [{
+                        data: (data.por_categoria || []).map(c => c.total),
+                        backgroundColor: (data.por_categoria || []).map(c => c.color),
+                        borderColor: '#1b263b',
+                        borderWidth: 2
+                    }]
+                },
+                options: chartOptions
+            });
+            
+            const ctxCta = document.getElementById('chartCuenta').getContext('2d');
+            charts.cuenta = new Chart(ctxCta, {
+                type: 'pie',
+                data: {
+                    labels: (data.por_cuenta || []).map(c => c.nombre),
+                    datasets: [{
+                        data: (data.por_cuenta || []).map(c => c.total),
+                        backgroundColor: (data.por_cuenta || []).map(c => c.color),
+                        borderColor: '#1b263b',
+                        borderWidth: 2
+                    }]
+                },
+                options: chartOptions
+            });
+            
+            const ctxIG = document.getElementById('chartIngresosGastos').getContext('2d');
+            charts.ingresosGastos = new Chart(ctxIG, {
+                type: 'bar',
+                data: {
+                    labels: ['Ingresos', 'Gastos'],
+                    datasets: [{
+                        data: [data.total_ingresado || 0, data.total_gastado || 0],
+                        backgroundColor: ['#00e676', '#ff5252'],
+                        borderColor: ['#00e676', '#ff5252'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: { ticks: { color: '#80deea', callback: v => formatCLP(v) }, grid: { color: 'rgba(0,168,232,0.1)' } },
+                        x: { ticks: { color: '#80deea' }, grid: { display: false } }
+                    }
+                }
+            });
+            
+            const ctxEvo = document.getElementById('chartEvolucion').getContext('2d');
+            const diasMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+            const dias = Array.from({length: diasMes}, (_, i) => i + 1);
+            charts.evolucion = new Chart(ctxEvo, {
+                type: 'line',
+                data: {
+                    labels: dias,
+                    datasets: [{
+                        label: 'Gastos Acumulados',
+                        data: dias.map(d => {
+                            const gastosDelDia = (data.pagos_dia || []).filter(p => parseInt(p.fecha.split('-')[2]) === d).reduce((a, p) => a + p.monto, 0);
+                            return gastosDelDia;
+                        }),
+                        borderColor: '#00a8e8',
+                        backgroundColor: 'rgba(0,168,232,0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: { ticks: { color: '#80deea', callback: v => formatCLP(v) }, grid: { color: 'rgba(0,168,232,0.1)' } },
+                        x: { ticks: { color: '#80deea' }, grid: { display: false } }
+                    }
+                }
+            });
         }
 
         async function loadPagos() {

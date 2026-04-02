@@ -109,12 +109,17 @@ if ($method === 'GET') {
             $saldos = [];
             while ($row = $saldosResult->fetchArray()) $saldos[] = $row;
             
+            $pagosDiaResult = $db->query("SELECT fecha, monto FROM pagos WHERE $where ORDER BY fecha");
+            $pagosDia = [];
+            while ($row = $pagosDiaResult->fetchArray()) $pagosDia[] = $row;
+            
             response([
                 'total_gastado' => (float)$total,
                 'total_ingresado' => (float)$totalIngresos,
                 'por_categoria' => $categorias,
                 'por_cuenta' => $cuentasGastos,
-                'saldos' => $saldos
+                'saldos' => $saldos,
+                'pagos_dia' => $pagosDia
             ]);
             break;
             
