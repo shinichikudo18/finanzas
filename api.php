@@ -3,8 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 define('DB_HOST', 'localhost');
-define('DB_USER', 'katherine_bank');
-define('DB_PASS', 'Katherine2025!');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 define('DB_NAME', 'katherine_bank');
 
 try {
