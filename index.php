@@ -134,30 +134,6 @@
         }
     </style>
 </head>
-        .options-btn { padding: 8px 12px; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; color: #fff; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
-        .options-btn:hover { background: rgba(255,105,180,0.3); }
-        .options-dropdown { display: none; position: absolute; right: 0; top: 40px; background: linear-gradient(135deg, #2d1b4e, #1a1a2e); border-radius: 12px; padding: 8px; min-width: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 50; border: 1px solid rgba(255,105,180,0.2); }
-        .options-dropdown.show { display: block; animation: fadeIn 0.2s ease; }
-        .options-dropdown button { width: 100%; padding: 10px 15px; background: transparent; border: none; color: #fff; cursor: pointer; text-align: left; font-size: 0.9rem; border-radius: 8px; transition: all 0.2s ease; }
-        .options-dropdown button:hover { background: rgba(255,105,180,0.2); }
-        .options-dropdown .delete-btn { color: #e74c3c; }
-        
-        @media (max-width: 768px) { 
-            .container { padding: 5px; } 
-            h1 { font-size: 1.5rem; } 
-            .tabs { overflow-x: auto; padding-bottom: 10px; } 
-            body { padding: 10px; } 
-            header { padding: 20px; margin-bottom: 15px; } 
-            .saldo-total { font-size: 2rem; } 
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } 
-            .cuentas-grid { grid-template-columns: 1fr; gap: 15px; } 
-            .btn { width: 100%; margin-bottom: 10px; } 
-            .modal-content { padding: 20px; width: 95%; } 
-            .pago-item { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .pago-monto { align-self: flex-end; }
-        }
-    </style>
-</head>
 <body>
     <div id="login-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0d1b2a,#1b263b,#0d1b2a);z-index:2000;align-items:center;justify-content:center;">
         <div style="background:linear-gradient(180deg,var(--bg-blue),var(--bg-dark));padding:40px;border:2px solid var(--blue);border-radius:15px;width:90%;max-width:400px;text-align:center;box-shadow:var(--glow-blue),inset 0 0 30px rgba(0,168,232,0.1);">
