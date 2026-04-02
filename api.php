@@ -2,20 +2,33 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-define('DB_HOST', '127.0.0.1');
-define('DB_USER', 'bankapp');
-define('DB_PASS', 'BankApp2025!');
-define('DB_NAME', 'katherine_bank');
+$db = new SQLite3('/var/www/katherine-bank/data.db');
 
-try {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    if ($conn->connect_error) {
-        throw new Exception('Conexión fallida: ' . $conn->connect_error);
+$tableExists = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='cuentas'");
+
+if (!$tableExists->fetchArray()) {
+    $db->exec("CREATE TABLE cuentas (id INTEGER PRIMARY KEY, nombre TEXT, banco TEXT, tipo TEXT DEFAULT 'bancaria', saldo REAL DEFAULT 0, color TEXT DEFAULT '#00d4ff', created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    $db->exec("CREATE TABLE categorias (id INTEGER PRIMARY KEY, nombre TEXT, icono TEXT DEFAULT '💰', color TEXT DEFAULT '#FF6384', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    $db->exec("CREATE TABLE pagos (id INTEGER PRIMARY KEY, cuenta_id INTEGER, categoria_id INTEGER, monto REAL, descripcion TEXT, fecha DATE, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    $db->exec("CREATE TABLE ingresos (id INTEGER PRIMARY KEY, cuenta_id INTEGER, monto REAL, descripcion TEXT, fecha DATE, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    
+    $categorias = [
+        ['Agua', '💧', '#36A2EB'],
+        ['Luz', '⚡', '#FFCE56'],
+        ['Gas', '🔥', '#FF6384'],
+        ['Internet', '📡', '#4BC0C0'],
+        ['Teléfono', '📱', '#9966FF'],
+        ['Comida', '🍔', '#FF9F40'],
+        ['Transporte', '🚗', '#C9CBCF'],
+        ['Entretenimiento', '🎮', '#FF6384'],
+        ['Salud', '🏥', '#4BC0C0'],
+        ['Otro', '📦', '#C9CBCF']
+    ];
+    
+    foreach ($categorias as $cat) {
+        $db->exec("INSERT INTO categorias (nombre, icono, color) VALUES ('{$cat[0]}', '{$cat[1]}', '{$cat[2]}')");
     }
-} catch (Exception $e) {
-    die(json_encode(['error' => $e->getMessage()]));
 }
-$conn->set_charset('utf8mb4');
 
 function response($data, $code = 200) {
     http_response_code($code);
@@ -30,16 +43,16 @@ $action = $_GET['action'] ?? '';
 if ($method === 'GET') {
     switch ($action) {
         case 'cuentas':
-            $result = $conn->query("SELECT * FROM cuentas ORDER BY nombre");
+            $result = $db->query("SELECT * FROM cuentas ORDER BY nombre");
             $cuentas = [];
-            while ($row = $result->fetch_assoc()) $cuentas[] = $row;
+            while ($row = $result->fetchArray(SQLITE_ASSOC)) $cuentas[] = $row;
             response($cuentas);
             break;
             
         case 'categorias':
-            $result = $conn->query("SELECT * FROM categorias ORDER BY nombre");
+            $result = $db->query("SELECT * FROM categorias ORDER BY nombre");
             $categorias = [];
-            while ($row = $result->fetch_assoc()) $categorias[] = $row;
+            while ($row = $result->fetchArray(SQLITE_ASSOC)) $categorias[] = $row;
             response($categorias);
             break;
             
@@ -47,11 +60,11 @@ if ($method === 'GET') {
             $filtro = $_GET['filtro'] ?? 'mes';
             $fecha = date('Y-m-d');
             if ($filtro === 'dia') $where = "fecha = '$fecha'";
-            elseif ($filtro === 'semana') $where = "fecha >= DATE_SUB('$fecha', INTERVAL 7 DAY)";
-            elseif ($filtro === 'mes') $where = "fecha >= DATE_FORMAT('$fecha', '%Y-%m-01')";
-            else $where = "fecha >= DATE_FORMAT('$fecha', '%Y-01-01')";
+            elseif ($filtro === 'semana') $where = "fecha >= date('$fecha', '-7 days')";
+            elseif ($filtro === 'mes') $where = "fecha >= date('$fecha', 'start of month')";
+            else $where = "fecha >= date('$fecha', 'start of year')";
             
-            $result = $conn->query("
+            $result = $db->query("
                 SELECT p.*, c.nombre as cuenta_nombre, cat.nombre as categoria_nombre, cat.icono as categoria_icono, cat.color as categoria_color
                 FROM pagos p
                 JOIN cuentas c ON p.cuenta_id = c.id
@@ -59,7 +72,7 @@ if ($method === 'GET') {
                 WHERE $where ORDER BY p.fecha DESC
             ");
             $pagos = [];
-            while ($row = $result->fetch_assoc()) $pagos[] = $row;
+            while ($row = $result->fetchArray(SQLITE_ASSOC)) $pagos[] = $row;
             response($pagos);
             break;
             
@@ -67,31 +80,33 @@ if ($method === 'GET') {
             $filtro = $_GET['filtro'] ?? 'mes';
             $fecha = date('Y-m-d');
             if ($filtro === 'dia') $where = "fecha = '$fecha'";
-            elseif ($filtro === 'semana') $where = "fecha >= DATE_SUB('$fecha', INTERVAL 7 DAY)";
-            elseif ($filtro === 'mes') $where = "fecha >= DATE_FORMAT('$fecha', '%Y-%m-01')";
-            else $where = "fecha >= DATE_FORMAT('$fecha', '%Y-01-01')";
+            elseif ($filtro === 'semana') $where = "fecha >= date('$fecha', '-7 days')";
+            elseif ($filtro === 'mes') $where = "fecha >= date('$fecha', 'start of month')";
+            else $where = "fecha >= date('$fecha', 'start of year')";
             
-            $total = $conn->query("SELECT SUM(monto) as total FROM pagos WHERE $where")->fetch_assoc()['total'] ?? 0;
+            $total = $db->query("SELECT SUM(monto) as total FROM pagos WHERE $where")->fetchArray(SQLITE_ASSOC)['total'] ?? 0;
             
-            $porCategoria = $conn->query("
+            $porCategoria = $db->query("
                 SELECT cat.nombre, cat.icono, cat.color, SUM(p.monto) as total
                 FROM pagos p
                 JOIN categorias cat ON p.categoria_id = cat.id
                 WHERE $where GROUP BY cat.id ORDER BY total DESC
             ");
             $categorias = [];
-            while ($row = $porCategoria->fetch_assoc()) $categorias[] = $row;
+            while ($row = $porCategoria->fetchArray(SQLITE_ASSOC)) $categorias[] = $row;
             
-            $porCuenta = $conn->query("
+            $porCuenta = $db->query("
                 SELECT c.nombre, c.color, SUM(p.monto) as total
                 FROM pagos p
                 JOIN cuentas c ON p.cuenta_id = c.id
                 WHERE $where GROUP BY c.id ORDER BY total DESC
             ");
             $cuentasGastos = [];
-            while ($row = $porCuenta->fetch_assoc()) $cuentasGastos[] = $row;
+            while ($row = $porCuenta->fetchArray(SQLITE_ASSOC)) $cuentasGastos[] = $row;
             
-            $saldos = $conn->query("SELECT nombre, saldo, color, tipo FROM cuentas ORDER BY tipo, nombre")->fetch_all(MYSQLI_ASSOC);
+            $saldosResult = $db->query("SELECT nombre, saldo, color, tipo FROM cuentas ORDER BY tipo, nombre");
+            $saldos = [];
+            while ($row = $saldosResult->fetchArray(SQLITE_ASSOC)) $saldos[] = $row;
             
             response([
                 'total_gastado' => (float)$total,
@@ -109,28 +124,39 @@ if ($method === 'GET') {
     
     switch ($action) {
         case 'cuenta':
-            $stmt = $conn->prepare("INSERT INTO cuentas (nombre, banco, tipo, saldo, color) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssds", $data['nombre'], $data['banco'], $data['tipo'], $data['saldo'], $data['color']);
+            $stmt = $db->prepare("INSERT INTO cuentas (nombre, banco, tipo, saldo, color) VALUES (:nombre, :banco, :tipo, :saldo, :color)");
+            $stmt->bindValue(':nombre', $data['nombre']);
+            $stmt->bindValue(':banco', $data['banco']);
+            $stmt->bindValue(':tipo', $data['tipo']);
+            $stmt->bindValue(':saldo', $data['saldo']);
+            $stmt->bindValue(':color', $data['color']);
             $stmt->execute();
-            response(['id' => $stmt->insert_id, 'message' => 'Cuenta creada']);
+            response(['id' => $db->lastInsertRowID(), 'message' => 'Cuenta creada']);
             break;
             
         case 'pago':
-            $stmt = $conn->prepare("INSERT INTO pagos (cuenta_id, categoria_id, monto, descripcion, fecha) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("iidss", $data['cuenta_id'], $data['categoria_id'], $data['monto'], $data['descripcion'], $data['fecha']);
+            $stmt = $db->prepare("INSERT INTO pagos (cuenta_id, categoria_id, monto, descripcion, fecha) VALUES (:cuenta_id, :categoria_id, :monto, :descripcion, :fecha)");
+            $stmt->bindValue(':cuenta_id', $data['cuenta_id']);
+            $stmt->bindValue(':categoria_id', $data['categoria_id']);
+            $stmt->bindValue(':monto', $data['monto']);
+            $stmt->bindValue(':descripcion', $data['descripcion']);
+            $stmt->bindValue(':fecha', $data['fecha']);
             $stmt->execute();
             
-            $conn->query("UPDATE cuentas SET saldo = saldo - {$data['monto']} WHERE id = {$data['cuenta_id']}");
-            response(['id' => $stmt->insert_id, 'message' => 'Pago registrado']);
+            $db->exec("UPDATE cuentas SET saldo = saldo - {$data['monto']} WHERE id = {$data['cuenta_id']}");
+            response(['id' => $db->lastInsertRowID(), 'message' => 'Pago registrado']);
             break;
             
         case 'ingreso':
-            $stmt = $conn->prepare("INSERT INTO ingresos (cuenta_id, monto, descripcion, fecha) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("idss", $data['cuenta_id'], $data['monto'], $data['descripcion'], $data['fecha']);
+            $stmt = $db->prepare("INSERT INTO ingresos (cuenta_id, monto, descripcion, fecha) VALUES (:cuenta_id, :monto, :descripcion, :fecha)");
+            $stmt->bindValue(':cuenta_id', $data['cuenta_id']);
+            $stmt->bindValue(':monto', $data['monto']);
+            $stmt->bindValue(':descripcion', $data['descripcion']);
+            $stmt->bindValue(':fecha', $data['fecha']);
             $stmt->execute();
             
-            $conn->query("UPDATE cuentas SET saldo = saldo + {$data['monto']} WHERE id = {$data['cuenta_id']}");
-            response(['id' => $stmt->insert_id, 'message' => 'Ingreso registrado']);
+            $db->exec("UPDATE cuentas SET saldo = saldo + {$data['monto']} WHERE id = {$data['cuenta_id']}");
+            response(['id' => $db->lastInsertRowID(), 'message' => 'Ingreso registrado']);
             break;
             
         default:
@@ -138,10 +164,10 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'DELETE' && $action === 'pago' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
-    $pago = $conn->query("SELECT monto, cuenta_id FROM pagos WHERE id = $id")->fetch_assoc();
+    $pago = $db->query("SELECT monto, cuenta_id FROM pagos WHERE id = $id")->fetchArray(SQLITE_ASSOC);
     if ($pago) {
-        $conn->query("UPDATE cuentas SET saldo = saldo + {$pago['monto']} WHERE id = {$pago['cuenta_id']}");
-        $conn->query("DELETE FROM pagos WHERE id = $id");
+        $db->exec("UPDATE cuentas SET saldo = saldo + {$pago['monto']} WHERE id = {$pago['cuenta_id']}");
+        $db->exec("DELETE FROM pagos WHERE id = $id");
         response(['message' => 'Pago eliminado']);
     } else {
         response(['error' => 'Pago no encontrado'], 404);
