@@ -2,9 +2,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_HOST', '127.0.0.1');
+define('DB_USER', 'bankapp');
+define('DB_PASS', 'BankApp2025!');
 define('DB_NAME', 'katherine_bank');
 
 try {

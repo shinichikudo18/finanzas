@@ -130,7 +130,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>💰 Katherine Bank</h1>
+            <h1><img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" alt="Logo" style="height:50px;vertical-align:middle;margin-right:10px;"> Katherine Bank</h1>
             <div class="saldo-total" id="saldoTotal">$0</div>
             <p style="color: #aaa">Saldo Total</p>
         </header>
