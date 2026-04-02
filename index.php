@@ -131,7 +131,7 @@
     <div class="container">
         <header>
             <h1>💰 Katherine Bank</h1>
-            <div class="saldo-total" id="saldoTotal">$0.00</div>
+            <div class="saldo-total" id="saldoTotal">$0</div>
             <p style="color: #aaa">Saldo Total</p>
         </header>
         
@@ -145,11 +145,11 @@
         <div id="tab-inicio" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value" id="statIngresos">$0.00</div>
+                    <div class="stat-value" id="statIngresos">$0</div>
                     <div class="stat-label">Ingresos del Mes</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="statGastos">$0.00</div>
+                    <div class="stat-value" id="statGastos">$0</div>
                     <div class="stat-label">Gastos del Mes</div>
                 </div>
                 <div class="stat-card">
@@ -282,6 +282,10 @@
         let categorias = [];
         let currentFiltro = 'mes';
 
+        function formatCLP(amount) {
+            return '$' + Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
         async function loadData() {
             try {
                 cuentas = await fetch(API + '?action=cuentas').then(r => r.json());
@@ -293,9 +297,9 @@
 
         async function loadResumen() {
             const data = await fetch(API + '?action=resumen&filtro=' + currentFiltro).then(r => r.json());
-            document.getElementById('saldoTotal').textContent = '$' + data.saldos.reduce((a, c) => a + parseFloat(c.saldo), 0).toFixed(2);
-            document.getElementById('statIngresos').textContent = '$0.00';
-            document.getElementById('statGastos').textContent = '$' + data.total_gastado.toFixed(2);
+            document.getElementById('saldoTotal').textContent = formatCLP(data.saldos.reduce((a, c) => a + parseFloat(c.saldo), 0));
+            document.getElementById('statIngresos').textContent = formatCLP(0);
+            document.getElementById('statGastos').textContent = formatCLP(data.total_gastado);
             document.getElementById('statCuentas').textContent = data.saldos.length;
             
             renderCuentas(data.saldos);
@@ -313,7 +317,7 @@
                         </div>
                         <span class="cuenta-tipo">${c.tipo === 'efectivo' ? 'Efectivo' : 'Bancaria'}</span>
                     </div>
-                    <div class="cuenta-saldo" style="color: ${c.saldo >= 0 ? '#00d4ff' : '#FF6384'}">$${parseFloat(c.saldo).toFixed(2)}</div>
+                    <div class="cuenta-saldo" style="color: ${c.saldo >= 0 ? '#00d4ff' : '#FF6384'}">${formatCLP(c.saldo)}</div>
                 </div>
             `).join('');
         }
@@ -324,7 +328,7 @@
                 <div class="categoria-item">
                     <div class="categoria-icon" style="background: ${c.color}20">${c.icono}</div>
                     <div class="categoria-nombre">${c.nombre}</div>
-                    <div class="categoria-monto">$${c.total.toFixed(2)}</div>
+                    <div class="categoria-monto">${formatCLP(c.total)}</div>
                 </div>
             `).join('') || '<p style="color:#aaa">Sin datos</p>';
             
@@ -333,7 +337,7 @@
                 <div class="categoria-item">
                     <div class="categoria-icon" style="background: ${c.color}20">🏦</div>
                     <div class="categoria-nombre">${c.nombre}</div>
-                    <div class="categoria-monto">$${c.total.toFixed(2)}</div>
+                    <div class="categoria-monto">${formatCLP(c.total)}</div>
                 </div>
             `).join('') || '<p style="color:#aaa">Sin datos</p>';
         }
@@ -360,7 +364,7 @@
                             <div class="pago-cuenta">${p.cuenta_nombre}</div>
                         </div>
                     </div>
-                    <div class="pago-monto">-$${parseFloat(p.monto).toFixed(2)}</div>
+                    <div class="pago-monto">-${formatCLP(p.monto)}</div>
                 </div>
             `).join('');
         }
@@ -386,7 +390,7 @@
                 document.getElementById('pago-fecha').value = new Date().toISOString().split('T')[0];
                 document.getElementById('ingreso-fecha').value = new Date().toISOString().split('T')[0];
                 const cuentaSelect = document.getElementById(modal === 'nuevo-pago' ? 'pago-cuenta' : 'ingreso-cuenta');
-                cuentaSelect.innerHTML = cuentas.map(c => `<option value="${c.id}">${c.nombre} ($${c.saldo})</option>`).join('');
+                cuentaSelect.innerHTML = cuentas.map(c => `<option value="${c.id}">${c.nombre} (${formatCLP(c.saldo)})</option>`).join('');
             }
             if (modal === 'nuevo-pago') {
                 document.getElementById('pago-categoria').innerHTML = categorias.map(c => `<option value="${c.id}">${c.icono} ${c.nombre}</option>`).join('');
