@@ -85,6 +85,7 @@ if ($method === 'GET') {
             else $where = "fecha >= date('$fecha', 'start of year')";
             
             $total = $db->query("SELECT SUM(monto) as total FROM pagos WHERE $where")->fetchArray()['total'] ?? 0;
+            $totalIngresos = $db->query("SELECT SUM(monto) as total FROM ingresos WHERE $where")->fetchArray()['total'] ?? 0;
             
             $porCategoria = $db->query("
                 SELECT cat.nombre, cat.icono, cat.color, SUM(p.monto) as total
@@ -104,12 +105,13 @@ if ($method === 'GET') {
             $cuentasGastos = [];
             while ($row = $porCuenta->fetchArray()) $cuentasGastos[] = $row;
             
-            $saldosResult = $db->query("SELECT nombre, saldo, color, tipo FROM cuentas ORDER BY tipo, nombre");
+            $saldosResult = $db->query("SELECT id, nombre, saldo, color, tipo FROM cuentas ORDER BY tipo, nombre");
             $saldos = [];
             while ($row = $saldosResult->fetchArray()) $saldos[] = $row;
             
             response([
                 'total_gastado' => (float)$total,
+                'total_ingresado' => (float)$totalIngresos,
                 'por_categoria' => $categorias,
                 'por_cuenta' => $cuentasGastos,
                 'saldos' => $saldos
@@ -117,51 +119,55 @@ if ($method === 'GET') {
             break;
             
         default:
-            response(['error' => 'Acción no válida']);
+            response(['error' => 'Accion no valida']);
     }
-} elseif ($method === 'POST') {
+} elseif ($method === 'POST' && $action === 'cuenta') {
     $data = json_decode(file_get_contents('php://input'), true);
+    $nombre = $data['nombre'] ?? '';
+    $banco = $data['banco'] ?? '';
+    $tipo = $data['tipo'] ?? 'bancaria';
+    $saldo = $data['saldo'] ?? 0;
+    $color = $data['color'] ?? '#00d4ff';
     
-    switch ($action) {
-        case 'cuenta':
-            $stmt = $db->prepare("INSERT INTO cuentas (nombre, banco, tipo, saldo, color) VALUES (:nombre, :banco, :tipo, :saldo, :color)");
-            $stmt->bindValue(':nombre', $data['nombre']);
-            $stmt->bindValue(':banco', $data['banco']);
-            $stmt->bindValue(':tipo', $data['tipo']);
-            $stmt->bindValue(':saldo', $data['saldo']);
-            $stmt->bindValue(':color', $data['color']);
-            $stmt->execute();
-            response(['id' => $db->lastInsertRowID(), 'message' => 'Cuenta creada']);
-            break;
-            
-        case 'pago':
-            $stmt = $db->prepare("INSERT INTO pagos (cuenta_id, categoria_id, monto, descripcion, fecha) VALUES (:cuenta_id, :categoria_id, :monto, :descripcion, :fecha)");
-            $stmt->bindValue(':cuenta_id', $data['cuenta_id']);
-            $stmt->bindValue(':categoria_id', $data['categoria_id']);
-            $stmt->bindValue(':monto', $data['monto']);
-            $stmt->bindValue(':descripcion', $data['descripcion']);
-            $stmt->bindValue(':fecha', $data['fecha']);
-            $stmt->execute();
-            
-            $db->exec("UPDATE cuentas SET saldo = saldo - {$data['monto']} WHERE id = {$data['cuenta_id']}");
-            response(['id' => $db->lastInsertRowID(), 'message' => 'Pago registrado']);
-            break;
-            
-        case 'ingreso':
-            $stmt = $db->prepare("INSERT INTO ingresos (cuenta_id, monto, descripcion, fecha) VALUES (:cuenta_id, :monto, :descripcion, :fecha)");
-            $stmt->bindValue(':cuenta_id', $data['cuenta_id']);
-            $stmt->bindValue(':monto', $data['monto']);
-            $stmt->bindValue(':descripcion', $data['descripcion']);
-            $stmt->bindValue(':fecha', $data['fecha']);
-            $stmt->execute();
-            
-            $db->exec("UPDATE cuentas SET saldo = saldo + {$data['monto']} WHERE id = {$data['cuenta_id']}");
-            response(['id' => $db->lastInsertRowID(), 'message' => 'Ingreso registrado']);
-            break;
-            
-        default:
-            response(['error' => 'Acción no válida']);
-    }
+    $db->exec("INSERT INTO cuentas (nombre, banco, tipo, saldo, color) VALUES ('$nombre', '$banco', '$tipo', $saldo, '$color')");
+    response(['message' => 'Cuenta creada', 'id' => $db->lastInsertRowID()]);
+} elseif ($method === 'POST' && $action === 'pago') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $cuenta_id = (int)$data['cuenta_id'];
+    $categoria_id = (int)$data['categoria_id'];
+    $monto = $data['monto'] ?? 0;
+    $descripcion = $data['descripcion'] ?? '';
+    $fecha = $data['fecha'] ?? date('Y-m-d');
+    
+    $db->exec("INSERT INTO pagos (cuenta_id, categoria_id, monto, descripcion, fecha) VALUES ($cuenta_id, $categoria_id, $monto, '$descripcion', '$fecha')");
+    $db->exec("UPDATE cuentas SET saldo = saldo - $monto WHERE id = $cuenta_id");
+    response(['message' => 'Pago registrado']);
+} elseif ($method === 'POST' && $action === 'ingreso') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $cuenta_id = (int)$data['cuenta_id'];
+    $monto = $data['monto'] ?? 0;
+    $descripcion = $data['descripcion'] ?? '';
+    $fecha = $data['fecha'] ?? date('Y-m-d');
+    
+    $db->exec("INSERT INTO ingresos (cuenta_id, monto, descripcion, fecha) VALUES ($cuenta_id, $monto, '$descripcion', '$fecha')");
+    $db->exec("UPDATE cuentas SET saldo = saldo + $monto WHERE id = $cuenta_id");
+    response(['message' => 'Ingreso registrado']);
+} elseif ($method === 'PUT' && $action === 'cuenta' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $data = json_decode(file_get_contents('php://input'), true);
+    $nombre = $data['nombre'] ?? '';
+    $tipo = $data['tipo'] ?? 'bancaria';
+    $saldo = $data['saldo'] ?? 0;
+    $color = $data['color'] ?? '#00d4ff';
+    
+    $db->exec("UPDATE cuentas SET nombre='$nombre', tipo='$tipo', saldo=$saldo, color='$color', updated_at=CURRENT_TIMESTAMP WHERE id=$id");
+    response(['message' => 'Cuenta actualizada']);
+} elseif ($method === 'DELETE' && $action === 'cuenta' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $db->exec("DELETE FROM pagos WHERE cuenta_id = $id");
+    $db->exec("DELETE FROM ingresos WHERE cuenta_id = $id");
+    $db->exec("DELETE FROM cuentas WHERE id = $id");
+    response(['message' => 'Cuenta eliminada']);
 } elseif ($method === 'DELETE' && $action === 'pago' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     $pago = $db->query("SELECT monto, cuenta_id FROM pagos WHERE id = $id")->fetchArray();
