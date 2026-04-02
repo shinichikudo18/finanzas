@@ -4,129 +4,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katherine Bank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --cyan: #00f0ff;
-            --cyan-dark: #00a8b5;
-            --purple: #b026ff;
-            --pink: #ff2d6a;
-            --gold: #ffd700;
-            --bg-dark: #0a0a0f;
-            --bg-card: rgba(0, 240, 255, 0.03);
-            --bg-card-border: rgba(0, 240, 255, 0.15);
-            --text: #e0e0e0;
-            --text-dim: #6a6a7a;
-            --danger: #ff2d6a;
-            --success: #00f0ff;
-            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5);
-            --glow-purple: 0 0 20px rgba(176, 38, 255, 0.5);
+            --blue: #00a8e8;
+            --blue-light: #4fc3f7;
+            --blue-dark: #0077b6;
+            --cyan: #00e5ff;
+            --orange: #ff9100;
+            --orange-light: #ffab40;
+            --yellow: #ffd600;
+            --green: #00e676;
+            --bg-dark: #0d1b2a;
+            --bg-blue: #1b263b;
+            --bg-card: rgba(0, 168, 232, 0.08);
+            --bg-card-border: rgba(0, 168, 232, 0.3);
+            --text: #e0f7fa;
+            --text-dim: #80deea;
+            --danger: #ff5252;
+            --success: #00e676;
+            --glow-blue: 0 0 20px rgba(0, 168, 232, 0.5);
+            --glow-orange: 0 0 20px rgba(255, 145, 0, 0.5);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Rajdhani', sans-serif; background: var(--bg-dark); min-height: 100vh; color: var(--text); padding: 20px; overflow-x: hidden; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: 
-            repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.03) 2px, rgba(0, 240, 255, 0.03) 4px),
-            repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0, 240, 255, 0.02) 50px, rgba(0, 240, 255, 0.02) 51px); 
-            pointer-events: none; z-index: -1; }
-        .container { max-width: 1200px; margin: 0 auto; position: relative; }
+        body { font-family: 'Exo 2', sans-serif; background: linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #0d1b2a 100%); min-height: 100vh; color: var(--text); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
         
-        header { text-align: center; margin-bottom: 30px; padding: 30px; background: linear-gradient(180deg, rgba(0, 240, 255, 0.08) 0%, transparent 100%); border: 1px solid var(--bg-card-border); border-radius: 5px; position: relative; }
-        header::before { content: ''; position: absolute; top: -1px; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
-        header::after { content: ''; position: absolute; bottom: -1px; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, transparent, var(--purple), transparent); }
-        h1 { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; margin-bottom: 15px; color: var(--cyan); text-shadow: var(--glow-cyan); letter-spacing: 4px; text-transform: uppercase; }
-        .saldo-total { font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 800; color: var(--gold); margin: 15px 0; text-shadow: 0 0 30px rgba(255, 215, 0, 0.4); letter-spacing: 2px; }
+        header { text-align: center; margin-bottom: 30px; padding: 30px; background: linear-gradient(180deg, rgba(0,168,232,0.15) 0%, transparent 100%); border: 2px solid var(--blue); border-radius: 15px; position: relative; box-shadow: var(--glow-blue), inset 0 0 30px rgba(0,168,232,0.1); }
+        header::before { content: ''; position: absolute; top: 5px; left: 10px; right: 10px; height: 2px; background: linear-gradient(90deg, transparent, var(--orange), var(--yellow), var(--orange), transparent); }
+        h1 { font-size: 2.5rem; margin-bottom: 15px; background: linear-gradient(90deg, var(--blue-light), var(--cyan), var(--blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 30px rgba(0,229,255,0.5); }
+        .saldo-total { font-size: 3rem; font-weight: 800; background: linear-gradient(90deg, var(--orange), var(--yellow), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 15px 0; text-shadow: 0 0 30px rgba(255,214,0,0.4); letter-spacing: 2px; }
         
-        .tabs { display: flex; gap: 5px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; border-bottom: 1px solid var(--bg-card-border); padding-bottom: 15px; }
-        .tab-btn { padding: 12px 30px; background: transparent; border: 1px solid var(--bg-card-border); border-bottom: none; border-radius: 0; color: var(--text-dim); cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s ease; position: relative; }
-        .tab-btn::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--cyan); transform: scaleX(0); transition: transform 0.3s ease; }
-        .tab-btn:hover { color: var(--cyan); border-color: var(--cyan); }
-        .tab-btn.active { background: rgba(0, 240, 255, 0.1); color: var(--cyan); border-color: var(--cyan); }
-        .tab-btn.active::before { transform: scaleX(1); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
+        .tab-btn { padding: 14px 30px; background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 30px; color: var(--text-dim); cursor: pointer; font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .tab-btn:hover { border-color: var(--blue); color: var(--blue); box-shadow: var(--glow-blue); transform: translateY(-3px); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); border-color: var(--cyan); color: #fff; box-shadow: var(--glow-blue), 0 0 30px rgba(0,168,232,0.3); }
         
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; animation: slideIn 0.4s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 20px; text-align: center; position: relative; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: all 0.3s ease; }
-        .stat-card:hover { border-color: var(--cyan); box-shadow: var(--glow-cyan); transform: translateY(-3px); }
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 8px; height: 8px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
-        .stat-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
-        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        .stat-label { color: var(--text-dim); font-size: 0.75rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
+        .stat-card { background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 15px; padding: 20px; text-align: center; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .stat-card:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: var(--glow-blue); }
+        .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--cyan); text-shadow: 0 0 15px rgba(0,229,255,0.6); }
+        .stat-label { color: var(--text-dim); font-size: 0.8rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
         
         .cuentas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .cuenta-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 20px; position: relative; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); transition: all 0.3s ease; }
-        .cuenta-card:hover { border-color: var(--purple); box-shadow: var(--glow-purple); }
-        .cuenta-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 60%; background: var(--purple); }
+        .cuenta-card { background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 15px; padding: 20px; transition: all 0.3s ease; position: relative; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .cuenta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue), var(--cyan), var(--orange)); }
+        .cuenta-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--orange), var(--yellow), var(--orange)); transform: scaleX(0); transition: transform 0.3s ease; }
+        .cuenta-card:hover { border-color: var(--blue); transform: translateY(-5px); box-shadow: var(--glow-blue); }
+        .cuenta-card:hover::after { transform: scaleX(1); }
         .cuenta-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .cuenta-nombre { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 1px; }
-        .cuenta-banco { color: var(--text-dim); font-size: 0.8rem; margin-top: 3px; }
-        .cuenta-saldo { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 700; margin-top: 10px; }
-        .cuenta-tipo { display: inline-block; padding: 4px 10px; border: 1px solid var(--cyan); border-radius: 0; font-size: 0.65rem; font-family: 'Orbitron', sans-serif; color: var(--cyan); letter-spacing: 1px; text-transform: uppercase; }
+        .cuenta-nombre { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .cuenta-banco { color: var(--text-dim); font-size: 0.9rem; margin-top: 3px; }
+        .cuenta-saldo { font-size: 2rem; font-weight: 800; margin-top: 10px; }
+        .cuenta-tipo { display: inline-block; padding: 6px 14px; border: 2px solid var(--blue); border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; }
         
-        .btn { padding: 12px 28px; border: 1px solid var(--cyan); background: transparent; border-radius: 0; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s ease; }
-        .btn:hover { background: var(--cyan); color: var(--bg-dark); box-shadow: var(--glow-cyan); }
-        .btn-primary { background: var(--cyan); color: var(--bg-dark); }
-        .btn-primary:hover { background: transparent; color: var(--cyan); }
+        .btn { padding: 14px 30px; border: 2px solid var(--blue); background: transparent; border-radius: 30px; cursor: pointer; font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
+        .btn:hover { background: var(--blue); color: #fff; box-shadow: var(--glow-blue); transform: translateY(-3px); }
+        .btn-primary { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: #fff; border-color: var(--blue); }
+        .btn-primary:hover { background: linear-gradient(135deg, var(--cyan), var(--blue)); }
         .btn-secondary { border-color: var(--text-dim); color: var(--text-dim); }
-        .btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
+        .btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 10, 0.95); z-index: 1000; backdrop-filter: blur(10px); }
-        .modal.active { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: var(--bg-dark); padding: 30px; border: 1px solid var(--cyan); border-radius: 0; width: 90%; max-width: 500px; position: relative; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); box-shadow: var(--glow-cyan), inset 0 0 50px rgba(0, 240, 255, 0.05); }
-        .modal::before { content: ''; position: absolute; top: -1px; left: 20%; right: 20%; height: 2px; background: var(--cyan); }
-        .modal h2 { font-family: 'Orbitron', sans-serif; margin-bottom: 25px; color: var(--cyan); font-size: 1.3rem; letter-spacing: 3px; text-transform: uppercase; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 27, 42, 0.95); z-index: 1000; }
+        .modal.active { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+        .modal-content { background: linear-gradient(180deg, var(--bg-blue), var(--bg-dark)); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; border: 2px solid var(--blue); box-shadow: var(--glow-blue), 0 20px 60px rgba(0,0,0,0.5); }
+        .modal h2 { margin-bottom: 25px; color: var(--cyan); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
         .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; color: var(--text-dim); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
-        .form-group input, .form-group select { width: 100%; padding: 14px; border: 1px solid var(--bg-card-border); background: rgba(0, 0, 0, 0.5); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem; transition: all 0.3s ease; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-dim); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group select { width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--bg-card-border); background: rgba(0,0,0,0.3); color: var(--text); font-size: 1rem; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: var(--glow-blue); }
         
-        .pagos-list { display: flex; flex-direction: column; gap: 10px; }
-        .pago-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 15px 20px; transition: all 0.3s ease; position: relative; }
-        .pago-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--danger); transform: scaleY(0); transition: transform 0.3s ease; }
-        .pago-item:hover { border-color: var(--cyan); }
-        .pago-item:hover::before { transform: scaleY(1); }
+        .pagos-list { display: flex; flex-direction: column; gap: 12px; }
+        .pago-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 2px solid var(--bg-card-border); padding: 15px 20px; border-radius: 12px; transition: all 0.3s ease; }
+        .pago-item:hover { border-color: var(--cyan); transform: translateX(5px); box-shadow: var(--glow-blue); }
         .pago-info { display: flex; align-items: center; gap: 15px; }
-        .pago-icon { font-size: 1.3rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--bg-card-border); }
+        .pago-icon { font-size: 1.5rem; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid var(--bg-card-border); }
         .pago-detalles { display: flex; flex-direction: column; }
-        .pago-desc { font-weight: 600; font-size: 0.95rem; }
-        .pago-fecha { color: var(--text-dim); font-size: 0.75rem; margin-top: 2px; }
-        .pago-cuenta { color: var(--text-dim); font-size: 0.7rem; }
-        .pago-monto { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--danger); }
+        .pago-desc { font-weight: 600; font-size: 1rem; }
+        .pago-fecha { color: var(--text-dim); font-size: 0.8rem; margin-top: 2px; }
+        .pago-cuenta { color: var(--text-dim); font-size: 0.75rem; }
+        .pago-monto { font-size: 1.3rem; font-weight: 700; color: var(--danger); }
         .pago-monto.positivo { color: var(--success); }
         
-        .filtros { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-        .filtro-btn { padding: 8px 20px; background: transparent; border: 1px solid var(--bg-card-border); border-radius: 0; color: var(--text-dim); cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s ease; }
-        .filtro-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-        .filtro-btn.active { background: var(--cyan); color: var(--bg-dark); border-color: var(--cyan); }
+        .filtros { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .filtro-btn { padding: 10px 22px; background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 25px; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; transition: all 0.3s ease; }
+        .filtro-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .filtro-btn.active { background: linear-gradient(135deg, var(--orange), var(--yellow)); border-color: var(--orange); color: #000; }
         
         .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .resumen-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 25px; position: relative; }
-        .resumen-card::before { content: ''; position: absolute; top: -1px; left: 0; right: 30%; height: 2px; background: var(--cyan); }
-        .resumen-titulo { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--cyan); margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; }
-        .categoria-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid transparent; margin-bottom: 8px; transition: all 0.3s ease; }
-        .categoria-item:hover { border-color: var(--bg-card-border); background: rgba(0, 240, 255, 0.05); }
-        .categoria-icon { font-size: 1.2rem; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--bg-card-border); }
-        .categoria-nombre { flex: 1; font-weight: 500; }
-        .categoria-monto { font-family: 'Orbitron', sans-serif; font-weight: 600; color: var(--danger); }
+        .resumen-card { background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 15px; padding: 25px; }
+        .resumen-titulo { font-size: 1.2rem; color: var(--cyan); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+        .categoria-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 10px; transition: all 0.3s ease; }
+        .categoria-item:hover { background: rgba(0,168,232,0.1); transform: translateX(5px); }
+        .categoria-icon { font-size: 1.3rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid var(--bg-card-border); }
+        .categoria-nombre { flex: 1; font-weight: 600; }
+        .categoria-monto { font-weight: 700; color: var(--danger); }
         
         .empty-state { text-align: center; padding: 50px; color: var(--text-dim); }
-        .empty-state-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+        .empty-state-icon { font-size: 4rem; margin-bottom: 15px; opacity: 0.5; }
         
         .options-menu { position: relative; }
-        .options-btn { padding: 8px 12px; background: transparent; border: 1px solid var(--bg-card-border); color: var(--text); cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
-        .options-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-        .options-dropdown { display: none; position: absolute; right: 0; top: 35px; background: var(--bg-dark); border: 1px solid var(--cyan); padding: 8px; min-width: 150px; z-index: 50; }
-        .options-dropdown.show { display: block; }
-        .options-dropdown button { width: 100%; padding: 10px 15px; background: transparent; border: none; color: var(--text); cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; text-align: left; transition: all 0.2s ease; }
-        .options-dropdown button:hover { background: rgba(0, 240, 255, 0.1); color: var(--cyan); }
+        .options-btn { padding: 8px 14px; background: var(--bg-card); border: 2px solid var(--bg-card-border); border-radius: 10px; color: var(--text); cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
+        .options-btn:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: var(--glow-blue); }
+        .options-dropdown { display: none; position: absolute; right: 0; top: 40px; background: var(--bg-blue); border: 2px solid var(--blue); border-radius: 12px; padding: 8px; min-width: 160px; z-index: 50; box-shadow: var(--glow-blue); }
+        .options-dropdown.show { display: block; animation: dropIn 0.2s ease; }
+        @keyframes dropIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .options-dropdown button { width: 100%; padding: 12px 15px; background: transparent; border: none; color: var(--text); cursor: pointer; font-size: 0.95rem; text-align: left; border-radius: 8px; transition: all 0.2s ease; }
+        .options-dropdown button:hover { background: rgba(0,168,232,0.2); color: var(--cyan); }
         .options-dropdown .delete-btn { color: var(--danger); }
-        .options-dropdown .delete-btn:hover { background: rgba(255, 45, 106, 0.1); color: var(--danger); }
+        .options-dropdown .delete-btn:hover { background: rgba(255,82,82,0.2); color: var(--danger); }
         
         @media (max-width: 768px) { 
             .container { padding: 5px; } 
-            h1 { font-size: 1.5rem; letter-spacing: 2px; } 
+            h1 { font-size: 1.6rem; } 
             .tabs { overflow-x: auto; padding-bottom: 10px; } 
             body { padding: 10px; } 
             header { padding: 20px; margin-bottom: 15px; } 
@@ -165,26 +159,26 @@
     </style>
 </head>
 <body>
-    <div id="login-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-dark);z-index:2000;align-items:center;justify-content:center;">
-        <div style="background:var(--bg-dark);padding:40px;border:1px solid var(--cyan);width:90%;max-width:400px;text-align:center;clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%);box-shadow:var(--glow-cyan),inset 0 0 50px rgba(0,240,255,0.05);">
-            <img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" style="height:80px;margin-bottom:20px;filter:drop-shadow(0 0 10px rgba(0,240,255,0.5));">
-            <h2 style="font-family:'Orbitron',sans-serif;color:var(--cyan);margin-bottom:30px;font-size:1.5rem;letter-spacing:3px;text-transform:uppercase;">Katherine Bank</h2>
-            <input type="text" id="login-user" placeholder="Usuario" style="width:100%;padding:15px;margin-bottom:15px;border:1px solid var(--bg-card-border);background:rgba(0,0,0,0.5);color:var(--text);font-size:16px;font-family:'Rajdhani',sans-serif;">
-            <input type="password" id="login-pass" placeholder="Contrasena" style="width:100%;padding:15px;margin-bottom:20px;border:1px solid var(--bg-card-border);background:rgba(0,0,0,0.5);color:var(--text);font-size:16px;font-family:'Rajdhani',sans-serif;">
-            <button onclick="login()" style="width:100%;padding:15px;background:var(--cyan);border:none;color:var(--bg-dark);font-size:1rem;font-weight:bold;font-family:'Orbitron',sans-serif;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.3s ease;">Iniciar Sesion</button>
+    <div id="login-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#0d1b2a,#1b263b,#0d1b2a);z-index:2000;align-items:center;justify-content:center;">
+        <div style="background:linear-gradient(180deg,var(--bg-blue),var(--bg-dark));padding:40px;border:2px solid var(--blue);border-radius:15px;width:90%;max-width:400px;text-align:center;box-shadow:var(--glow-blue),inset 0 0 30px rgba(0,168,232,0.1);">
+            <img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" style="height:80px;margin-bottom:20px;filter:drop-shadow(0 0 15px rgba(0,168,232,0.6));">
+            <h2 style="background:linear-gradient(90deg,var(--blue-light),var(--cyan),var(--blue-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px;font-size:1.5rem;text-transform:uppercase;letter-spacing:3px;font-weight:700;">Katherine Bank</h2>
+            <input type="text" id="login-user" placeholder="Usuario" style="width:100%;padding:15px;margin-bottom:15px;border:2px solid var(--bg-card-border);border-radius:10px;background:rgba(0,0,0,0.3);color:var(--text);font-size:16px;">
+            <input type="password" id="login-pass" placeholder="Contrasena" style="width:100%;padding:15px;margin-bottom:20px;border:2px solid var(--bg-card-border);border-radius:10px;background:rgba(0,0,0,0.3);color:var(--text);font-size:16px;">
+            <button onclick="login()" style="width:100%;padding:15px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));border:2px solid var(--cyan);border-radius:30px;color:#fff;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;box-shadow:var(--glow-blue);transition:all 0.3s ease;">Iniciar Sesion</button>
         </div>
     </div>
     <div id="app" style="display:none;">
     <div class="container">
         <header>
-            <h1><img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" alt="Logo" style="height:50px;vertical-align:middle;margin-right:10px;filter:drop-shadow(0 0 10px rgba(0,240,255,0.5));"> Katherine Bank</h1>
+            <h1><img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" alt="Logo" style="height:50px;vertical-align:middle;margin-right:10px;filter:drop-shadow(0 0 15px rgba(0,168,232,0.6));"> Katherine Bank</h1>
             <div class="saldo-total" id="saldoTotal">$0</div>
-            <p style="color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">
+            <p style="color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">
                 Saldo Total 
                 <div style="position: relative;">
-                    <button onclick="toggleSettings()" style="padding:8px 15px;background:transparent;border:1px solid var(--bg-card-border);color:var(--text-dim);cursor:pointer;font-size:0.8rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;text-transform:uppercase;">⚙️ Settings</button>
-                    <div id="settings-menu" style="display:none;position:absolute;right:0;top:35px;background:var(--bg-dark);border:1px solid var(--cyan);padding:10px;min-width:180px;z-index:100;">
-                        <button onclick="openModal('cambiar-pass')" style="width:100%;padding:10px;background:transparent;border:none;color:var(--text);cursor:pointer;text-align:left;font-size:0.9rem;font-family:'Rajdhani',sans-serif;">🔑 Cambiar Contrasena</button>
+                    <button onclick="toggleSettings()" style="padding:8px 15px;background:var(--bg-card);border:2px solid var(--bg-card-border);border-radius:10px;color:var(--text-dim);cursor:pointer;font-size:0.85rem;font-weight:600;">⚙️ Settings</button>
+                    <div id="settings-menu" style="display:none;position:absolute;right:0;top:35px;background:var(--bg-blue);border:2px solid var(--blue);border-radius:12px;padding:10px;min-width:180px;z-index:100;box-shadow:var(--glow-blue);">
+                        <button onclick="openModal('cambiar-pass')" style="width:100%;padding:10px;background:transparent;border:none;color:var(--text);cursor:pointer;text-align:left;font-size:0.9rem;">🔑 Cambiar Contrasena</button>
                         <button onclick="logout()" style="width:100%;padding:10px;background:transparent;border:none;color:#FF6384;cursor:pointer;text-align:left;font-size:0.9rem;">🚪 Cerrar Sesion</button>
                     </div>
                 </div>
@@ -235,7 +229,7 @@
             <div class="form-group"><label>Banco</label><input type="text" id="cuenta-banco" placeholder="Banco de Chile"></div>
             <div class="form-group"><label>Tipo</label><select id="cuenta-tipo"><option value="bancaria">Bancaria</option><option value="efectivo">Efectivo</option></select></div>
             <div class="form-group"><label>Saldo Inicial</label><input type="number" id="cuenta-saldo" step="0.01" value="0"></div>
-            <div class="form-group"><label>Color</label><input type="color" id="cuenta-color" value="#b026ff"></div>
+            <div class="form-group"><label>Color</label><input type="color" id="cuenta-color" value="#00a8e8"></div>
             <button class="btn btn-primary" onclick="crearCuenta()" style="width: 100%;">Crear Cuenta</button>
             <button class="btn btn-secondary" onclick="closeModal('nueva-cuenta')" style="width: 100%; margin-top: 10px;">Cancelar</button>
         </div>
@@ -350,7 +344,7 @@
                     </div>
                 </div>
                 <span class="cuenta-tipo">${c.tipo === 'efectivo' ? 'Efectivo' : 'Bancaria'}</span>
-                <div class="cuenta-saldo" style="color:${(c.saldo||0)>=0?'var(--cyan)':'var(--danger)'}">${formatCLP(c.saldo||0)}</div>
+                <div class="cuenta-saldo" style="color:${(c.saldo||0)>=0?'var(--green)':'var(--danger)'}">${formatCLP(c.saldo||0)}</div>
             </div>`).join('') : '<div class="empty-state"><div class="empty-state-icon">💳</div>No hay cuentas. Crea una!</div>';
         }
 
