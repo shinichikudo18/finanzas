@@ -45,14 +45,14 @@ if ($method === 'GET') {
         case 'cuentas':
             $result = $db->query("SELECT * FROM cuentas ORDER BY nombre");
             $cuentas = [];
-            while ($row = $result->fetchArray(SQLITE_ASSOC)) $cuentas[] = $row;
+            while ($row = $result->fetchArray()) $cuentas[] = $row;
             response($cuentas);
             break;
             
         case 'categorias':
             $result = $db->query("SELECT * FROM categorias ORDER BY nombre");
             $categorias = [];
-            while ($row = $result->fetchArray(SQLITE_ASSOC)) $categorias[] = $row;
+            while ($row = $result->fetchArray()) $categorias[] = $row;
             response($categorias);
             break;
             
@@ -72,7 +72,7 @@ if ($method === 'GET') {
                 WHERE $where ORDER BY p.fecha DESC
             ");
             $pagos = [];
-            while ($row = $result->fetchArray(SQLITE_ASSOC)) $pagos[] = $row;
+            while ($row = $result->fetchArray()) $pagos[] = $row;
             response($pagos);
             break;
             
@@ -84,7 +84,7 @@ if ($method === 'GET') {
             elseif ($filtro === 'mes') $where = "fecha >= date('$fecha', 'start of month')";
             else $where = "fecha >= date('$fecha', 'start of year')";
             
-            $total = $db->query("SELECT SUM(monto) as total FROM pagos WHERE $where")->fetchArray(SQLITE_ASSOC)['total'] ?? 0;
+            $total = $db->query("SELECT SUM(monto) as total FROM pagos WHERE $where")->fetchArray()['total'] ?? 0;
             
             $porCategoria = $db->query("
                 SELECT cat.nombre, cat.icono, cat.color, SUM(p.monto) as total
@@ -93,7 +93,7 @@ if ($method === 'GET') {
                 WHERE $where GROUP BY cat.id ORDER BY total DESC
             ");
             $categorias = [];
-            while ($row = $porCategoria->fetchArray(SQLITE_ASSOC)) $categorias[] = $row;
+            while ($row = $porCategoria->fetchArray()) $categorias[] = $row;
             
             $porCuenta = $db->query("
                 SELECT c.nombre, c.color, SUM(p.monto) as total
@@ -102,11 +102,11 @@ if ($method === 'GET') {
                 WHERE $where GROUP BY c.id ORDER BY total DESC
             ");
             $cuentasGastos = [];
-            while ($row = $porCuenta->fetchArray(SQLITE_ASSOC)) $cuentasGastos[] = $row;
+            while ($row = $porCuenta->fetchArray()) $cuentasGastos[] = $row;
             
             $saldosResult = $db->query("SELECT nombre, saldo, color, tipo FROM cuentas ORDER BY tipo, nombre");
             $saldos = [];
-            while ($row = $saldosResult->fetchArray(SQLITE_ASSOC)) $saldos[] = $row;
+            while ($row = $saldosResult->fetchArray()) $saldos[] = $row;
             
             response([
                 'total_gastado' => (float)$total,
@@ -164,7 +164,7 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'DELETE' && $action === 'pago' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
-    $pago = $db->query("SELECT monto, cuenta_id FROM pagos WHERE id = $id")->fetchArray(SQLITE_ASSOC);
+    $pago = $db->query("SELECT monto, cuenta_id FROM pagos WHERE id = $id")->fetchArray();
     if ($pago) {
         $db->exec("UPDATE cuentas SET saldo = saldo + {$pago['monto']} WHERE id = {$pago['cuenta_id']}");
         $db->exec("DELETE FROM pagos WHERE id = $id");
