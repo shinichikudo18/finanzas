@@ -75,7 +75,56 @@
         
         .empty-state { text-align: center; padding: 40px; color: #aaa; }
         
-        @media (max-width: 768px) { .container { padding: 10px; } h1 { font-size: 1.5rem; } .tabs { overflow-x: auto; } }
+        @media (max-width: 768px) { 
+            .container { padding: 10px; } 
+            h1 { font-size: 1.3rem; } 
+            .tabs { 
+                display: flex; 
+                gap: 5px; 
+                overflow-x: auto; 
+                padding-bottom: 10px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .tabs::-webkit-scrollbar { display: none; }
+            .tab-btn { 
+                padding: 10px 15px; 
+                font-size: 0.85rem; 
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            body { padding: 10px; }
+            header { padding: 15px; margin-bottom: 15px; }
+            .saldo-total { font-size: 1.8rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 12px; }
+            .stat-value { font-size: 1.2rem; }
+            .stat-label { font-size: 0.7rem; }
+            .cuentas-grid { grid-template-columns: 1fr; gap: 15px; }
+            .cuenta-card { padding: 15px; }
+            .cuenta-nombre { font-size: 1rem; }
+            .cuenta-saldo { font-size: 1.4rem; }
+            .btn { padding: 12px 20px; font-size: 0.9rem; width: 100%; margin-bottom: 10px; }
+            .modal-content { padding: 20px; width: 95%; max-height: 90vh; overflow-y: auto; }
+            .form-group { margin-bottom: 12px; }
+            .form-group input, .form-group select { padding: 10px; font-size: 16px; }
+            .filtros { gap: 5px; }
+            .filtro-btn { padding: 8px 12px; font-size: 0.8rem; }
+            .pago-item { padding: 12px; flex-direction: column; align-items: flex-start; gap: 10px; }
+            .pago-info { width: 100%; }
+            .pago-monto { align-self: flex-end; }
+            .resumen-grid { grid-template-columns: 1fr; }
+            .categoria-item { padding: 8px; }
+        }
+        
+        @media (max-width: 480px) {
+            .tabs { gap: 3px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.75rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 10px; }
+            .stat-value { font-size: 1rem; }
+            .stat-label { font-size: 0.65rem; }
+        }
     </style>
 </head>
 <body>
