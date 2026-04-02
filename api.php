@@ -1,12 +1,19 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 define('DB_HOST', 'localhost');
 define('DB_USER', 'katherine_bank');
 define('DB_PASS', 'Katherine2025!');
 define('DB_NAME', 'katherine_bank');
 
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-if ($conn->connect_error) {
-    die(json_encode(['error' => 'Conexión fallida: ' . $conn->connect_error]));
+try {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if ($conn->connect_error) {
+        throw new Exception('Conexión fallida: ' . $conn->connect_error);
+    }
+} catch (Exception $e) {
+    die(json_encode(['error' => $e->getMessage()]));
 }
 $conn->set_charset('utf8mb4');
 
