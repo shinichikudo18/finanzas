@@ -4,100 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katherine Bank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #ff69b4;
-            --primary-dark: #c71585;
-            --secondary: #9b59b6;
-            --accent: #f1c40f;
+            --cyan: #00f0ff;
+            --cyan-dark: #00a8b5;
+            --purple: #b026ff;
+            --pink: #ff2d6a;
             --gold: #ffd700;
-            --bg-dark: #1a1a2e;
-            --bg-card: rgba(255,255,255,0.08);
-            --text: #fff;
-            --text-muted: #b8b8b8;
-            --danger: #e74c3c;
-            --success: #2ecc71;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(0, 240, 255, 0.03);
+            --bg-card-border: rgba(0, 240, 255, 0.15);
+            --text: #e0e0e0;
+            --text-dim: #6a6a7a;
+            --danger: #ff2d6a;
+            --success: #00f0ff;
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5);
+            --glow-purple: 0 0 20px rgba(176, 38, 255, 0.5);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #2d1b4e 70%, #1a1a2e 100%); min-height: 100vh; color: var(--text); padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        body { font-family: 'Rajdhani', sans-serif; background: var(--bg-dark); min-height: 100vh; color: var(--text); padding: 20px; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: 
+            repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.03) 2px, rgba(0, 240, 255, 0.03) 4px),
+            repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0, 240, 255, 0.02) 50px, rgba(0, 240, 255, 0.02) 51px); 
+            pointer-events: none; z-index: -1; }
+        .container { max-width: 1200px; margin: 0 auto; position: relative; }
         
-        header { text-align: center; margin-bottom: 30px; padding: 30px; background: linear-gradient(135deg, rgba(255,105,180,0.15) 0%, rgba(155,89,182,0.15) 100%); border-radius: 20px; border: 1px solid rgba(255,105,180,0.2); backdrop-filter: blur(10px); }
-        h1 { font-size: 2.2rem; margin-bottom: 15px; background: linear-gradient(90deg, #ff69b4, #ffd700, #ff69b4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmer 3s linear infinite; }
-        @keyframes shimmer { to { background-position: 200% center; } }
-        .saldo-total { font-size: 2.8rem; font-weight: 700; background: linear-gradient(90deg, #ffd700, #ffec8b, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 15px 0; text-shadow: 0 0 30px rgba(255,215,0,0.3); }
+        header { text-align: center; margin-bottom: 30px; padding: 30px; background: linear-gradient(180deg, rgba(0, 240, 255, 0.08) 0%, transparent 100%); border: 1px solid var(--bg-card-border); border-radius: 5px; position: relative; }
+        header::before { content: ''; position: absolute; top: -1px; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+        header::after { content: ''; position: absolute; bottom: -1px; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; margin-bottom: 15px; color: var(--cyan); text-shadow: var(--glow-cyan); letter-spacing: 4px; text-transform: uppercase; }
+        .saldo-total { font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 800; color: var(--gold); margin: 15px 0; text-shadow: 0 0 30px rgba(255, 215, 0, 0.4); letter-spacing: 2px; }
         
-        .tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
-        .tab-btn { padding: 12px 28px; background: var(--bg-card); border: 1px solid rgba(255,105,180,0.2); border-radius: 25px; color: var(--text); cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: all 0.3s ease; }
-        .tab-btn:hover { background: rgba(255,105,180,0.2); transform: translateY(-2px); }
-        .tab-btn.active { background: linear-gradient(135deg, #ff69b4, #c71585); color: #fff; font-weight: 600; box-shadow: 0 4px 20px rgba(255,105,180,0.4); }
+        .tabs { display: flex; gap: 5px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; border-bottom: 1px solid var(--bg-card-border); padding-bottom: 15px; }
+        .tab-btn { padding: 12px 30px; background: transparent; border: 1px solid var(--bg-card-border); border-bottom: none; border-radius: 0; color: var(--text-dim); cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s ease; position: relative; }
+        .tab-btn::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--cyan); transform: scaleX(0); transition: transform 0.3s ease; }
+        .tab-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+        .tab-btn.active { background: rgba(0, 240, 255, 0.1); color: var(--cyan); border-color: var(--cyan); }
+        .tab-btn.active::before { transform: scaleX(1); }
         
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--bg-card); border-radius: 20px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,105,180,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .stat-value { font-size: 1.6rem; font-weight: 700; background: linear-gradient(90deg, #ff69b4, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-label { color: var(--text-muted); font-size: 0.8rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 20px; text-align: center; position: relative; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: all 0.3s ease; }
+        .stat-card:hover { border-color: var(--cyan); box-shadow: var(--glow-cyan); transform: translateY(-3px); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 8px; height: 8px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+        .stat-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+        .stat-label { color: var(--text-dim); font-size: 0.75rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
         
         .cuentas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .cuenta-card { background: var(--bg-card); border-radius: 20px; padding: 20px; border-left: 4px solid; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .cuenta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,105,180,0.05) 0%, transparent 100%); pointer-events: none; }
-        .cuenta-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
-        .cuenta-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; position: relative; z-index: 1; }
-        .cuenta-nombre { font-size: 1.3rem; font-weight: 600; }
-        .cuenta-banco { color: var(--text-muted); font-size: 0.85rem; margin-top: 3px; }
-        .cuenta-saldo { font-size: 1.9rem; font-weight: 700; margin-top: 10px; }
-        .cuenta-tipo { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; background: rgba(255,105,180,0.2); color: #ff69b4; }
+        .cuenta-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 20px; position: relative; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); transition: all 0.3s ease; }
+        .cuenta-card:hover { border-color: var(--purple); box-shadow: var(--glow-purple); }
+        .cuenta-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 60%; background: var(--purple); }
+        .cuenta-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .cuenta-nombre { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 1px; }
+        .cuenta-banco { color: var(--text-dim); font-size: 0.8rem; margin-top: 3px; }
+        .cuenta-saldo { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 700; margin-top: 10px; }
+        .cuenta-tipo { display: inline-block; padding: 4px 10px; border: 1px solid var(--cyan); border-radius: 0; font-size: 0.65rem; font-family: 'Orbitron', sans-serif; color: var(--cyan); letter-spacing: 1px; text-transform: uppercase; }
         
-        .btn { padding: 12px 28px; border: none; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .btn-primary { background: linear-gradient(135deg, #ff69b4, #c71585); color: #fff; }
-        .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid rgba(255,255,255,0.2); }
-        .btn:hover { transform: translateY(-2px); }
+        .btn { padding: 12px 28px; border: 1px solid var(--cyan); background: transparent; border-radius: 0; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s ease; }
+        .btn:hover { background: var(--cyan); color: var(--bg-dark); box-shadow: var(--glow-cyan); }
+        .btn-primary { background: var(--cyan); color: var(--bg-dark); }
+        .btn-primary:hover { background: transparent; color: var(--cyan); }
+        .btn-secondary { border-color: var(--text-dim); color: var(--text-dim); }
+        .btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
-        .modal.active { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
-        .modal-content { background: linear-gradient(135deg, #1a1a2e, #2d1b4e); padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; border: 1px solid rgba(255,105,180,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .modal h2 { margin-bottom: 25px; background: linear-gradient(90deg, #ff69b4, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 10, 0.95); z-index: 1000; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-dark); padding: 30px; border: 1px solid var(--cyan); border-radius: 0; width: 90%; max-width: 500px; position: relative; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); box-shadow: var(--glow-cyan), inset 0 0 50px rgba(0, 240, 255, 0.05); }
+        .modal::before { content: ''; position: absolute; top: -1px; left: 20%; right: 20%; height: 2px; background: var(--cyan); }
+        .modal h2 { font-family: 'Orbitron', sans-serif; margin-bottom: 25px; color: var(--cyan); font-size: 1.3rem; letter-spacing: 3px; text-transform: uppercase; }
         .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
-        .form-group input, .form-group select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,105,180,0.2); background: rgba(0,0,0,0.3); color: #fff; font-size: 1rem; transition: all 0.3s ease; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #ff69b4; box-shadow: 0 0 15px rgba(255,105,180,0.3); }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-dim); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
+        .form-group input, .form-group select { width: 100%; padding: 14px; border: 1px solid var(--bg-card-border); background: rgba(0, 0, 0, 0.5); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
         
-        .pagos-list { display: flex; flex-direction: column; gap: 12px; }
-        .pago-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 15px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
-        .pago-item:hover { border-color: rgba(255,105,180,0.2); transform: translateX(5px); }
+        .pagos-list { display: flex; flex-direction: column; gap: 10px; }
+        .pago-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 15px 20px; transition: all 0.3s ease; position: relative; }
+        .pago-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--danger); transform: scaleY(0); transition: transform 0.3s ease; }
+        .pago-item:hover { border-color: var(--cyan); }
+        .pago-item:hover::before { transform: scaleY(1); }
         .pago-info { display: flex; align-items: center; gap: 15px; }
-        .pago-icon { font-size: 1.5rem; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+        .pago-icon { font-size: 1.3rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--bg-card-border); }
         .pago-detalles { display: flex; flex-direction: column; }
-        .pago-desc { font-weight: 600; font-size: 1rem; }
-        .pago-fecha { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
-        .pago-cuenta { color: var(--text-muted); font-size: 0.75rem; }
-        .pago-monto { font-size: 1.3rem; font-weight: 700; color: #e74c3c; }
-        .pago-monto.positivo { color: #2ecc71; }
+        .pago-desc { font-weight: 600; font-size: 0.95rem; }
+        .pago-fecha { color: var(--text-dim); font-size: 0.75rem; margin-top: 2px; }
+        .pago-cuenta { color: var(--text-dim); font-size: 0.7rem; }
+        .pago-monto { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--danger); }
+        .pago-monto.positivo { color: var(--success); }
         
-        .filtros { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-        .filtro-btn { padding: 8px 20px; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; color: var(--text); cursor: pointer; font-size: 0.85rem; transition: all 0.3s ease; }
-        .filtro-btn:hover { background: rgba(255,105,180,0.2); }
-        .filtro-btn.active { background: linear-gradient(135deg, #9b59b6, #6c3483); color: #fff; }
+        .filtros { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .filtro-btn { padding: 8px 20px; background: transparent; border: 1px solid var(--bg-card-border); border-radius: 0; color: var(--text-dim); cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s ease; }
+        .filtro-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .filtro-btn.active { background: var(--cyan); color: var(--bg-dark); border-color: var(--cyan); }
         
         .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .resumen-card { background: var(--bg-card); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); }
-        .resumen-titulo { font-size: 1.2rem; background: linear-gradient(90deg, #ff69b4, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; font-weight: 600; }
-        .categoria-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s ease; }
-        .categoria-item:hover { background: rgba(255,105,180,0.1); }
-        .categoria-icon { font-size: 1.3rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .resumen-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 25px; position: relative; }
+        .resumen-card::before { content: ''; position: absolute; top: -1px; left: 0; right: 30%; height: 2px; background: var(--cyan); }
+        .resumen-titulo { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--cyan); margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; }
+        .categoria-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid transparent; margin-bottom: 8px; transition: all 0.3s ease; }
+        .categoria-item:hover { border-color: var(--bg-card-border); background: rgba(0, 240, 255, 0.05); }
+        .categoria-icon { font-size: 1.2rem; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--bg-card-border); }
         .categoria-nombre { flex: 1; font-weight: 500; }
-        .categoria-monto { font-weight: 700; color: #e74c3c; }
+        .categoria-monto { font-family: 'Orbitron', sans-serif; font-weight: 600; color: var(--danger); }
         
-        .empty-state { text-align: center; padding: 50px; color: var(--text-muted); }
-        .empty-state-icon { font-size: 4rem; margin-bottom: 15px; opacity: 0.5; }
+        .empty-state { text-align: center; padding: 50px; color: var(--text-dim); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
         
         .options-menu { position: relative; }
+        .options-btn { padding: 8px 12px; background: transparent; border: 1px solid var(--bg-card-border); color: var(--text); cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
+        .options-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .options-dropdown { display: none; position: absolute; right: 0; top: 35px; background: var(--bg-dark); border: 1px solid var(--cyan); padding: 8px; min-width: 150px; z-index: 50; }
+        .options-dropdown.show { display: block; }
+        .options-dropdown button { width: 100%; padding: 10px 15px; background: transparent; border: none; color: var(--text); cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; text-align: left; transition: all 0.2s ease; }
+        .options-dropdown button:hover { background: rgba(0, 240, 255, 0.1); color: var(--cyan); }
+        .options-dropdown .delete-btn { color: var(--danger); }
+        .options-dropdown .delete-btn:hover { background: rgba(255, 45, 106, 0.1); color: var(--danger); }
+        
+        @media (max-width: 768px) { 
+            .container { padding: 5px; } 
+            h1 { font-size: 1.5rem; letter-spacing: 2px; } 
+            .tabs { overflow-x: auto; padding-bottom: 10px; } 
+            body { padding: 10px; } 
+            header { padding: 20px; margin-bottom: 15px; } 
+            .saldo-total { font-size: 2rem; } 
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } 
+            .cuentas-grid { grid-template-columns: 1fr; gap: 15px; } 
+            .btn { width: 100%; margin-bottom: 10px; } 
+            .modal-content { padding: 20px; width: 95%; } 
+            .pago-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .pago-monto { align-self: flex-end; }
+        }
+    </style>
+</head>
         .options-btn { padding: 8px 12px; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; color: #fff; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
         .options-btn:hover { background: rgba(255,105,180,0.3); }
         .options-dropdown { display: none; position: absolute; right: 0; top: 40px; background: linear-gradient(135deg, #2d1b4e, #1a1a2e); border-radius: 12px; padding: 8px; min-width: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 50; border: 1px solid rgba(255,105,180,0.2); }
@@ -123,26 +165,26 @@
     </style>
 </head>
 <body>
-    <div id="login-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#2d1b4e,#1a1a2e);z-index:2000;align-items:center;justify-content:center;">
-        <div style="background:linear-gradient(135deg,rgba(45,27,78,0.9),rgba(26,26,46,0.9));padding:40px;border-radius:25px;width:90%;max-width:400px;text-align:center;border:1px solid rgba(255,105,180,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-            <img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" style="height:80px;margin-bottom:20px;">
-            <h2 style="background:linear-gradient(90deg,#ff69b4,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px;font-size:1.8rem;">Katherine Bank</h2>
-            <input type="text" id="login-user" placeholder="Usuario" style="width:100%;padding:15px;margin-bottom:15px;border-radius:12px;border:1px solid rgba(255,105,180,0.3);background:rgba(0,0,0,0.3);color:#fff;font-size:16px;">
-            <input type="password" id="login-pass" placeholder="Contrasena" style="width:100%;padding:15px;margin-bottom:20px;border-radius:12px;border:1px solid rgba(255,105,180,0.3);background:rgba(0,0,0,0.3);color:#fff;font-size:16px;">
-            <button onclick="login()" style="width:100%;padding:15px;background:linear-gradient(135deg,#ff69b4,#c71585);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:bold;cursor:pointer;transition:all 0.3s ease;">Iniciar Sesion</button>
+    <div id="login-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-dark);z-index:2000;align-items:center;justify-content:center;">
+        <div style="background:var(--bg-dark);padding:40px;border:1px solid var(--cyan);width:90%;max-width:400px;text-align:center;clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%);box-shadow:var(--glow-cyan),inset 0 0 50px rgba(0,240,255,0.05);">
+            <img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" style="height:80px;margin-bottom:20px;filter:drop-shadow(0 0 10px rgba(0,240,255,0.5));">
+            <h2 style="font-family:'Orbitron',sans-serif;color:var(--cyan);margin-bottom:30px;font-size:1.5rem;letter-spacing:3px;text-transform:uppercase;">Katherine Bank</h2>
+            <input type="text" id="login-user" placeholder="Usuario" style="width:100%;padding:15px;margin-bottom:15px;border:1px solid var(--bg-card-border);background:rgba(0,0,0,0.5);color:var(--text);font-size:16px;font-family:'Rajdhani',sans-serif;">
+            <input type="password" id="login-pass" placeholder="Contrasena" style="width:100%;padding:15px;margin-bottom:20px;border:1px solid var(--bg-card-border);background:rgba(0,0,0,0.5);color:var(--text);font-size:16px;font-family:'Rajdhani',sans-serif;">
+            <button onclick="login()" style="width:100%;padding:15px;background:var(--cyan);border:none;color:var(--bg-dark);font-size:1rem;font-weight:bold;font-family:'Orbitron',sans-serif;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.3s ease;">Iniciar Sesion</button>
         </div>
     </div>
     <div id="app" style="display:none;">
     <div class="container">
         <header>
-            <h1><img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" alt="Logo" style="height:50px;vertical-align:middle;margin-right:10px;"> Katherine Bank</h1>
+            <h1><img src="https://i.postimg.cc/4Nf7WvxG/Gemini-Generated-Image-9j5a449j5a449j5a-removebg-preview.png" alt="Logo" style="height:50px;vertical-align:middle;margin-right:10px;filter:drop-shadow(0 0 10px rgba(0,240,255,0.5));"> Katherine Bank</h1>
             <div class="saldo-total" id="saldoTotal">$0</div>
-            <p style="color: #aaa; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <p style="color: var(--text-dim); display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">
                 Saldo Total 
                 <div style="position: relative;">
-                    <button onclick="toggleSettings()" style="padding:8px 15px;background:rgba(255,255,255,0.2);border:none;border-radius:5px;color:#fff;cursor:pointer;font-size:0.9rem;">⚙️ Settings</button>
-                    <div id="settings-menu" style="display:none;position:absolute;right:0;top:35px;background:#1a1a2e;border-radius:10px;padding:10px;min-width:180px;box-shadow:0 4px 15px rgba(0,0,0,0.5);z-index:100;">
-                        <button onclick="openModal('cambiar-pass')" style="width:100%;padding:10px;background:transparent;border:none;color:#fff;cursor:pointer;text-align:left;font-size:0.9rem;">🔑 Cambiar Contrasena</button>
+                    <button onclick="toggleSettings()" style="padding:8px 15px;background:transparent;border:1px solid var(--bg-card-border);color:var(--text-dim);cursor:pointer;font-size:0.8rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;text-transform:uppercase;">⚙️ Settings</button>
+                    <div id="settings-menu" style="display:none;position:absolute;right:0;top:35px;background:var(--bg-dark);border:1px solid var(--cyan);padding:10px;min-width:180px;z-index:100;">
+                        <button onclick="openModal('cambiar-pass')" style="width:100%;padding:10px;background:transparent;border:none;color:var(--text);cursor:pointer;text-align:left;font-size:0.9rem;font-family:'Rajdhani',sans-serif;">🔑 Cambiar Contrasena</button>
                         <button onclick="logout()" style="width:100%;padding:10px;background:transparent;border:none;color:#FF6384;cursor:pointer;text-align:left;font-size:0.9rem;">🚪 Cerrar Sesion</button>
                     </div>
                 </div>
@@ -193,7 +235,7 @@
             <div class="form-group"><label>Banco</label><input type="text" id="cuenta-banco" placeholder="Banco de Chile"></div>
             <div class="form-group"><label>Tipo</label><select id="cuenta-tipo"><option value="bancaria">Bancaria</option><option value="efectivo">Efectivo</option></select></div>
             <div class="form-group"><label>Saldo Inicial</label><input type="number" id="cuenta-saldo" step="0.01" value="0"></div>
-            <div class="form-group"><label>Color</label><input type="color" id="cuenta-color" value="#ff69b4"></div>
+            <div class="form-group"><label>Color</label><input type="color" id="cuenta-color" value="#b026ff"></div>
             <button class="btn btn-primary" onclick="crearCuenta()" style="width: 100%;">Crear Cuenta</button>
             <button class="btn btn-secondary" onclick="closeModal('nueva-cuenta')" style="width: 100%; margin-top: 10px;">Cancelar</button>
         </div>
@@ -308,7 +350,7 @@
                     </div>
                 </div>
                 <span class="cuenta-tipo">${c.tipo === 'efectivo' ? 'Efectivo' : 'Bancaria'}</span>
-                <div class="cuenta-saldo" style="color:${(c.saldo||0)>=0?'#ffd700':'#e74c3c'}">${formatCLP(c.saldo||0)}</div>
+                <div class="cuenta-saldo" style="color:${(c.saldo||0)>=0?'var(--cyan)':'var(--danger)'}">${formatCLP(c.saldo||0)}</div>
             </div>`).join('') : '<div class="empty-state"><div class="empty-state-icon">💳</div>No hay cuentas. Crea una!</div>';
         }
 
